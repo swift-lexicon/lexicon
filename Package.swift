@@ -5,41 +5,46 @@ import PackageDescription
 import CompilerPluginSupport
 
 let package = Package(
-    name: "Parsecco",
+    name: "Lexicon",
     platforms: [.macOS(.v10_15), .iOS(.v13), .tvOS(.v13), .watchOS(.v6), .macCatalyst(.v13)],
     products: [
         .library(
-            name: "Parsecco",
-            targets: ["Parsecco"]
+            name: "Lexicon",
+            targets: ["Lexicon"]
         ),
-        .executable(
-            name: "ParseccoClient",
-            targets: ["ParseccoClient"]
-        ),
+        .library(
+            name: "LexiconJson",
+            targets: ["LexiconJson"]
+        )
     ],
     dependencies: [
         .package(url: "https://github.com/swiftlang/swift-syntax.git", from: "600.0.0-latest"),
     ],
     targets: [
         .macro(
-            name: "ParseccoMacros",
+            name: "LexiconMacros",
             dependencies: [
                 .product(name: "SwiftSyntaxMacros", package: "swift-syntax"),
                 .product(name: "SwiftCompilerPlugin", package: "swift-syntax")
             ]
         ),
-        .target(name: "Parsecco", dependencies: ["ParseccoMacros"]),
-        .executableTarget(name: "ParseccoClient", dependencies: ["Parsecco"]),
+        .target(name: "Lexicon", dependencies: ["LexiconMacros"]),
+        .target(name: "LexiconJson", dependencies: ["Lexicon"]),
+        .executableTarget(name: "LexiconClient", dependencies: ["Lexicon"]),
         .testTarget(
-            name: "ParseccoMacroTests",
+            name: "LexiconMacroTests",
             dependencies: [
-                "ParseccoMacros",
+                "LexiconMacros",
                 .product(name: "SwiftSyntaxMacrosTestSupport", package: "swift-syntax"),
             ]
         ),
         .testTarget(
-            name: "ParseccoTests",
-            dependencies: ["Parsecco"]
+            name: "LexiconTests",
+            dependencies: ["Lexicon"]
+        ),
+        .testTarget(
+            name: "LexiconJsonTests",
+            dependencies: ["LexiconJson"]
         ),
     ]
 )

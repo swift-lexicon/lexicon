@@ -1,0 +1,40 @@
+//
+//  Parser.swift
+//  Lexicon
+//
+//  Created by Aaron Vranken on 23/01/2025.
+//
+
+import Foundation
+
+public struct ParseResult<Result, Remaining> {
+    public let output: Result
+    public let remaining: Remaining
+    
+    @inlinable
+    public init(_ result: Result, _ remaining: Remaining) {
+        self.output = result
+        self.remaining = remaining
+    }
+}
+
+extension ParseResult: Sendable where Result: Sendable, Remaining: Sendable {}
+
+public protocol Parser<Input, Output>: ParserConvertible where ParserType == Self {
+    associatedtype Input
+    associatedtype Output
+    
+    func parse(_ input: Input) throws -> ParseResult<Output, Input>?
+}
+
+public extension Parser
+where Input == Substring {
+    @inlinable
+    func parse(_ input: String) throws -> Output? {
+        try self.parse(input[...]).map { $0.output }
+    }
+}
+
+public extension Parser {
+    @inlinable var asParser: ParserType { get { self } }
+}
