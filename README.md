@@ -2,25 +2,37 @@
 
 Lexicon is a Swift parser library that enables developers to quickly develop complex parsers with great performance. With Lexicon, you can create modular parsers and combine them together to handle complex use-cases, all using result builders and an intuitive syntax!
 
-## Requirements
+Why use Lexicon? The main reason to prefer Lexicon over other Swift parsing libraries (there aren't that many) is that Lexicon was written from the ground up to provide consistent great performance without compromising on ease of use. This means that Lexicon parsers are easy to write and understand, while still executing faster than any other Swift parser library out there.
 
-The current requirements for this project are:
-
-```
-Swift 6
-macOS v10.15
-iOS v13
-```
-
-These might be quite restrictive. If you wish these to be lowered, I am more than open to hear you out, but it will sadly involve removing SwiftSyntaxMacros. Most of the remaining code can easily be made compatible with older OS’s.
 
 ## Package
 
-To use this parser in your project, add the following dependency:
+The library does not yet have a production release, but you can play around with it already by adding the prerelease dependency to your package:
 
 ```
-[ADD]
+dependencies: [
+    .package(url: "https://github.com/swift-lexicon/lexicon", exact: "0.5.0-prerelease-2025-01-29")
+],
 ```
+
+You then specify the target dependency as follows:
+
+```
+.target(
+    name: <your package target>,
+    dependencies: [
+        .product(name: "Lexicon", package: "lexicon")
+    ]
+),
+```
+
+The current platform requirements are:
+
+```
+platforms: [.macOS(.v10_15), .iOS(.v13), .tvOS(.v13), .watchOS(.v6), .macCatalyst(.v13)],
+```
+
+There is currently an open issue to consider lowering these by using code generation instead of macros.
 
 ## Your first parser
 
