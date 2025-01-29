@@ -42,7 +42,7 @@ Let’s say you want to parse a small comma separated list, with Lexicon this is
 let listOfNames = "alex,lottie,steven,ainslie,david"
 
 let commaSeparatedParser = ZeroOrMore {
-    While {
+    SkipWhile {
         Not {
             Character(",")
         }
@@ -74,7 +74,7 @@ However, for us this is not an issue, we simply create a new `quotedField` parse
 ```swift
 let quotedField = Parse {
     Character("\"")
-    While {
+    SkipWhile {
         Not { Character("\"") }
     }.capture()
     Character("\"")
@@ -84,7 +84,7 @@ let quotedField = Parse {
 And move our old body into an `unquotedField` parser:
 
 ```swift
-let unquotedField = While {
+let unquotedField = SkipWhile {
     Not {
         Character(",")
     }
