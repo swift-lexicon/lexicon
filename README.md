@@ -162,7 +162,7 @@ By default, all the convenience parsers bundled with the library are Substring p
 
 ### Passing Parameters: `inout Substring` Vs `Substring`
 
-Something I come across often when looking at Swift parsers is their abundant usage of `inout`. This is, presumably again, to increase the performance of their parsers by simply passing in a pointer. 
+Something I come across often when looking at Swift parsers is their abundant usage of `inout`. This is presumably to increase the performance of their parsers by simply passing in a pointer instead of a full struct. 
 
 After extensive performance testing, I can unequivocally say that this is completely unnecessary for almost all parsing use cases and certainly when working with Substrings. I did not see any performance difference whatsoever when parsing common data types and I would love to know why. 
 
