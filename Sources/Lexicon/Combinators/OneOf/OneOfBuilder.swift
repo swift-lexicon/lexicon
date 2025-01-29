@@ -6,7 +6,7 @@
 //
 
 @attached(member, names: arbitrary)
-macro generateOneOfBuilderMembers(_ value: Int) = #externalMacro(module: "LexiconMacros", type: "GenerateOneOfBuilderMembers")
+public macro generateOneOfBuilderMembers(_ value: Int) = #externalMacro(module: "LexiconMacros", type: "GenerateOneOfBuilderMembers")
 
 @resultBuilder
 public enum OneOfBuilder {}
