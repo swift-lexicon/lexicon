@@ -45,9 +45,9 @@ public func generateParseOutputAccumulators(arity: Int) -> [DeclSyntax] {
         case .output:
             declarations.append(
                 """
-                @inlinable static func buildPartialBlock<\(raw: commaSeparatedOutputGenerics), P0: Parser, P1: Parser>(accumulated: P0, next: Capture<P1>) -> \(raw: typeName)<\(raw: commaSeparatedOutputGenerics), P0, P1>
+                @inlinable static func buildPartialBlock<\(raw: commaSeparatedOutputGenerics), P0: Parser, P1: CapturingParser>(accumulated: P0, next: P1) -> \(raw: typeName)<\(raw: commaSeparatedOutputGenerics), P0, P1>
                 where P0.Output == ParseMatchWithCaptures<(\(raw: commaSeparatedOutputGenerics)), P0.Input> {
-                    \(raw: typeName)(accumulated, next.parser)
+                    \(raw: typeName)(accumulated, next)
                 }
                 """
             )

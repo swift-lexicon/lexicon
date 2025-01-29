@@ -10,32 +10,32 @@ import Lexicon
 
 // true  = %x74.72.75.65      ; true
 @usableFromInline
-internal let trueLiteralUtf8 = Match("true".data(using: .utf8)!).transform {
+internal let trueLiteralUtf8 = Match("true".utf8).map {
     _ in JsonValue.boolean(value: true)
 }
 
 // false = %x66.61.6c.73.65   ; false
 @usableFromInline
-internal let falseLiteralUtf8 = Match("false".data(using: .utf8)!).transform {
+internal let falseLiteralUtf8 = Match("false".utf8).map {
     _ in JsonValue.boolean(value: false)
 }
 
 // null  = %x6e.75.6c.6c      ; null
 @usableFromInline
-internal let nullLiteralUtf8 = Match("null".data(using: .utf8)!).transform {
+internal let nullLiteralUtf8 = Match("null".utf8).map {
     _ in JsonValue.null
 }
 
 // string = quotation-mark *char quotation-mark
 @usableFromInline
-internal let stringValueUtf8 = stringSyntaxUtf8.transform {
-    JsonValue.string(value: String(data: $0, encoding: .utf8)!)
+internal let stringValueUtf8 = stringSyntaxUtf8.map {
+    JsonValue.string(value: String($0)!)
 }
 
 // number = [ minus ] int [ frac ] [ exp ]
 @usableFromInline
-internal let numberValueUtf8 = numberUtf8.transform {
-    JsonValue.number(value: Double(String(data: $0, encoding: .utf8)!)!)
+internal let numberValueUtf8 = numberUtf8.map {
+    JsonValue.number(value: Double(String($0)!)!)
 }
 
 // array = begin-array [ value *( value-separator value ) ] end-array
@@ -48,14 +48,14 @@ internal let arrayValueUtf8 = Parse {
     } separator: {
         valueSeparatorUtf8
     }
-    .transform({ $0.map(\.captures) })
+    .map({ $0.map(\.captures) })
     .capture()
     
     endArrayUtf8.throwOnFailure(JsonParserError.arrayMissingClosingBracket)
-}.transform({ JsonValue.array(value: $0.captures ) })
+}.map({ JsonValue.array(value: $0.captures ) })
 
 @usableFromInline
-internal func parseArrayUtf8(_ input: Data) throws -> ParseResult<JsonValue, Data>? {
+internal func parseArrayUtf8(_ input: Substring.UTF8View.SubSequence) throws -> ParseResult<JsonValue, Substring.UTF8View.SubSequence>? {
     try arrayValueUtf8.parse(input)
 }
 
@@ -65,7 +65,7 @@ internal let memberUtf8 = Parse {
     stringSyntaxUtf8.capture()
     nameSeparatorUtf8.throwOnFailure(JsonParserError.objectMissingNameSeparator)
     jsonParserUtf8.capture()
-}.transform { ($0.captures.0, $0.captures.1) }
+}.map { ($0.captures.0, $0.captures.1) }
 
 // object = begin-object [ member *( value-separator member ) ] end-object
 @usableFromInline
@@ -77,20 +77,20 @@ internal let objectValueUtf8 = Parse {
     } separator: {
         valueSeparatorUtf8
     }
-    .transform({ $0.map { $0.captures } })
+    .map({ $0.map { $0.captures } })
     .capture()
     
     endObjectUtf8.throwOnFailure(JsonParserError.objectMissingClosingBrace)
-}.transform {
+}.map {
     var dictionary: [String: JsonValue] = [:]
     for (key, value) in $0.captures {
-        dictionary[String(data: key, encoding: .utf8)!] = value
+        dictionary[String(key)!] = value
     }
     return JsonValue.object(value: dictionary)
 }
 
 @usableFromInline
-internal func parseObjectUtf8(_ input: Data) throws -> ParseResult<JsonValue, Data>? {
+internal func parseObjectUtf8(_ input: Substring.UTF8View.SubSequence) throws -> ParseResult<JsonValue, Substring.UTF8View.SubSequence>? {
     try objectValueUtf8.parse(input)
 }
 

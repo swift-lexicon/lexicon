@@ -15,7 +15,7 @@ internal let number = Parse {
     int
     frac.optional()
     exp.optional()
-}.transform(\.match)
+}.map(\.match)
 
 // decimal-point = %x2E       ; .
 @usableFromInline
@@ -73,7 +73,7 @@ internal let int = OneOf {
         ZeroOrMore {
             asciiNumber
         }
-    }.transform(\.match)
+    }.map(\.match)
 }
 
 // minus = %x2D               ; -

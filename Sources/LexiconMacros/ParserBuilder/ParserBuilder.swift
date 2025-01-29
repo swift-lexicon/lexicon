@@ -45,7 +45,7 @@ extension Array {
         var newArray: [T] = []
         var i = 0
         while i < count {
-            newArray.append(try transform(i - 1 > 0 ? self[i-1] : nil, self[i]))
+            newArray.append(try transform(i - 1 >= 0 ? self[i-1] : nil, self[i]))
             i += 1
         }
         
@@ -62,12 +62,14 @@ public func generateParserTuple(arity: Int) -> DeclSyntax {
     return """
     @parseSendableConformanceMacro
     struct \(raw: parserTupleSyntax.type)<\(raw: parserTupleSyntax.getGenericsClauseContent())>: Parser
-    where 
-        \(raw:
-            remainingParameters
-                .map({ "\(firstParameter.type.name).Input == \($0.type.name).Input" })
-                .joined(separator: ", ")
-        )
+    \(raw: remainingParameters.isEmpty ? "" : """
+    where \(
+        remainingParameters
+            .map({ "\(firstParameter.type.name).Input == \($0.type.name).Input" })
+            .joined(separator: ", ")
+    )
+    """
+    )
     {
         @usableFromInline let \(raw:
             parserTupleSyntax
@@ -113,7 +115,7 @@ public struct GenerateParserBuilderMembers: MemberMacro {
         
         var declarations: [DeclSyntax] = []
         
-        for i in (2...maxArity) {
+        for i in (1...maxArity) {
             declarations.append(generateBuildBlock(arity: i))
             declarations.append(generateParserTuple(arity: i))
         }

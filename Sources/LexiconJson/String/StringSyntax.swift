@@ -53,17 +53,17 @@ internal let character = OneOf {
     Parse {
         escape
         escaped
-    }.transform(\.match)
+    }.map(\.match)
 }
 
 @usableFromInline
 internal let stringSyntax = Parse {
     quotationMark
-    While {
+    SkipWhile {
         character
     }.capture()
     quotationMark
-}.transform(\.captures)
+}.map(\.captures)
 
 @usableFromInline
 internal let escapedCharacterSet = CharacterSet([
@@ -76,6 +76,7 @@ internal let escapedCharacterSet = CharacterSet([
     UnicodeScalar(0x72),
     UnicodeScalar(0x74)
 ])
+
 @inlinable
 internal func isEscapedCharacter(_ character: Character) -> Bool {
     guard let token = character.unicodeScalars.first else {
@@ -88,7 +89,7 @@ internal func isEscapedCharacter(_ character: Character) -> Bool {
 internal let escapedHexRepresentation = Parse {
     Character("u")
     hexDigit.repeating(times: 4)
-}.transform(\.match)
+}.map(\.match)
 
 @usableFromInline
 internal let escaped = OneOf {

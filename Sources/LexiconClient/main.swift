@@ -1,5 +1,5 @@
 //
-//  Main.swift
+//  main.swift
 //  Lexicon
 //
 //  Created by Aaron Vranken on 27/01/2025.
@@ -17,13 +17,13 @@ print(listOfNames.split(separator: ","))
 
 let quotedField = Parse {
     Character("\"")
-    While {
+    SkipWhile {
         Not { Character("\"") }
     }.capture()
     Character("\"")
-}.transform(\.captures)
+}.map(\.captures)
 
-let unquotedField = While {
+let unquotedField = SkipWhile {
     Not {
         Character(",")
     }
@@ -36,14 +36,10 @@ let commaSeparatedParser = ZeroOrMore {
     }.capture()
 } separator: {
     Character(",")
-}.transform { $0.map(\.captures) }
+}.map { $0.map(\.captures) }
 
 let names = try commaSeparatedParser.parse(listOfNames)
 
-print(names)
+print(names as Any)
 // Right result!
 // Optional(["alex", "lottie", "smith,steven", "ainslie", "david"])
-
-let accented = Character("é")
-
-print(accented.isASCII, accented.isLetter)

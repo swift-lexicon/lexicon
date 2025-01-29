@@ -11,50 +11,50 @@ import Lexicon
 // begin-array     = ws %x5B ws  ; [ left square bracket
 @usableFromInline
 internal let beginArray = Parse {
-    whitespace
+    ws
     Capture { Character("[") }
-    whitespace
-}.transform(\.captures)
+    ws
+}.map(\.captures)
 
 // end-array       = ws %x5D ws  ; ] right square bracket
 @usableFromInline
 internal let endArray = Parse {
-    whitespace
+    ws
     Capture { Character("]") }
-    whitespace
-}.transform(\.captures)
+    ws
+}.map(\.captures)
 
 // begin-object    = ws %x7B ws  ; { left curly bracket
 @usableFromInline
 internal let beginObject = Parse {
-    whitespace
+    ws
     Capture { Character("{") }
-    whitespace
-}.transform(\.captures)
+    ws
+}.map(\.captures)
 
 // end-object      = ws %x7D ws  ; } right curly bracket
 @usableFromInline
 internal let endObject = Parse {
-    whitespace
+    ws
     Capture { Character("}") }
-    whitespace
-}.transform(\.captures)
+    ws
+}.map(\.captures)
 
 // name-separator  = ws %x3A ws  ; : colon
 @usableFromInline
 internal let nameSeparator = Parse {
-    whitespace
+    ws
     Capture { Character(":") }
-    whitespace
-}.transform(\.captures)
+    ws
+}.map(\.captures)
 
 // value-separator = ws %x2C ws  ; , comma
 @usableFromInline
 internal let valueSeparator = Parse {
-    whitespace
+    ws
     Capture { Character(",") }
-    whitespace
-}.transform(\.captures)
+    ws
+}.map(\.captures)
 
 /*
  ws = *(
@@ -71,12 +71,16 @@ internal let whitespaceCharacters = CharacterSet([
     Unicode.Scalar(0x0D)
 ])
 
-@usableFromInline
-internal let whitespace = While {
-    Spot<Substring> { element in
-        guard let token = element.unicodeScalars.first else {
-            return false
-        }
-        return whitespaceCharacters.contains(token)
+@inlinable
+internal func isWhitespace(_ character: Character) -> Bool {
+    guard let token = character.utf8.first else {
+        return false
     }
+    
+    return token == 0x20 || token == 0x09 || token == 0x0A || token == 0x0D
+}
+
+@usableFromInline
+internal let ws = SkipWhile {
+    Spot<Substring>(isWhitespace)
 }

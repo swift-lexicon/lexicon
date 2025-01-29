@@ -23,10 +23,10 @@ public struct JsonParserUtf8: Parser, Sendable {
         .throwOnFailure(JsonParserError.notAValidJsonValue)
         .capture()
         whitespaceUtf8
-    }.transform(\.captures)
+    }.map(\.captures)
     
     @inlinable
-    public func parse(_ input: Data) throws -> ParseResult<JsonValue, Data>? {
+    public func parse(_ input: Substring.UTF8View.SubSequence) throws -> ParseResult<JsonValue, Substring.UTF8View.SubSequence>? {
         try Self.jsonValueParser.parse(input)
     }
 }
