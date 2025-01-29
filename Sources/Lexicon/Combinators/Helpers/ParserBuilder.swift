@@ -6,7 +6,7 @@
 //
 
 @attached(member, names: arbitrary)
-macro generateParserBuilderMembers(_ value: Int) = #externalMacro(module: "LexiconMacros", type: "GenerateParserBuilderMembers")
+public macro generateParserBuilderMembers(_ value: Int) = #externalMacro(module: "LexiconMacros", type: "GenerateParserBuilderMembers")
 
 @resultBuilder
 public enum ParserBuilder {}

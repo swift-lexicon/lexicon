@@ -7,4 +7,4 @@
 
 // This gets used by multiple resultBuilder macros.
 @attached(extension, conformances: Sendable)
-macro parseSendableConformanceMacro() = #externalMacro(module: "LexiconMacros", type: "ParseSendableConformanceMacro")
+public macro parseSendableConformanceMacro() = #externalMacro(module: "LexiconMacros", type: "ParseSendableConformanceMacro")
