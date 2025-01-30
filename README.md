@@ -1,6 +1,6 @@
 # Lexicon: The Swift Parser Combinator
 
-Lexicon is a Swift parser library that enables developers to quickly develop complex parsers with great performance. With Lexicon, you can create modular parsers and combine them together to handle complex use-cases, all using result builders and an intuitive syntax!
+Lexicon is a Swift parser library that enables developers to quickly create complex parsers with great performance. With Lexicon, you can make modular parsers and combine them together to handle complicated use-cases, all using result builders and an intuitive syntax!
 
 Why use Lexicon? The main reason to prefer Lexicon over other Swift parsing libraries (there aren't that many) is that Lexicon was written from the ground up to provide consistent great performance without compromising on ease of use. This means that Lexicon parsers are easy to write and understand, while still executing faster than any other Swift parser library out there.
 
@@ -9,7 +9,7 @@ Why use Lexicon? The main reason to prefer Lexicon over other Swift parsing libr
 
 The library does not yet have a production release, but you can play around with it already by adding the prerelease dependency to your package:
 
-```
+```swift
 dependencies: [
     .package(url: "https://github.com/swift-lexicon/lexicon", exact: "0.5.0-prerelease-2025-01-29")
 ],
@@ -17,7 +17,7 @@ dependencies: [
 
 You then specify the target dependency as follows:
 
-```
+```swift
 .target(
     name: <your package target>,
     dependencies: [
@@ -28,7 +28,7 @@ You then specify the target dependency as follows:
 
 The current platform requirements are:
 
-```
+```swift
 platforms: [.macOS(.v10_15), .iOS(.v13), .tvOS(.v13), .watchOS(.v6), .macCatalyst(.v13)],
 ```
 
@@ -164,7 +164,17 @@ By default, all the convenience parsers bundled with the library are Substring p
 
 Something I come across often when looking at Swift parsers is their abundant usage of `inout`. This is presumably to increase the performance of their parsers by simply passing in a pointer instead of a full struct. 
 
-After extensive performance testing, I can unequivocally say that this is completely unnecessary for almost all parsing use cases and certainly when working with Substrings. I did not see any performance difference whatsoever when parsing common data types and I would love to know why. 
+After extensive performance testing, I can unequivocally say that this is completely unnecessary for almost all parsing use cases and certainly when working with Substrings or ArraySlices. I did not see any performance difference whatsoever when parsing common data types and I assume that this has to do with the very small sizes of Substring and ArraySlice structs. It is important to note here that a Subtring of ArraySlice does not contain the entire substring or slice being passed. 
+
+```swift
+let input = "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Cras vel ipsum molestie, posuere tellus vitae, tristique neque. Nam posuere tristique quam, sed imperdiet eros tristique in."
+
+print(MemoryLayout.size(ofValue: input[...])) // 32
+```
+
+The total size of the Substring structure is only 32 bytes (a pointer is 8 bytes), copying this amount of memory will have a negligible result on performance. Combine this with compiler optimisations on how parameters are passed and possible inlining of code and we shouldn't need to worry about it too much.
+
+> If you are working with custom data types that are not optimised in a similar way, then this might not hold.
 
 ### What Did Make a Difference
 
