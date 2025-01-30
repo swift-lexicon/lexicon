@@ -25,11 +25,11 @@ where P.Input: Collection, P.Input.SubSequence == P.Input {
             return nil
         }
         
-        var remaining = input
-        guard let _ = remaining.popFirst() else {
+        guard !input.isEmpty else {
             return nil
         }
         
+        let remaining = input[input.index(after: input.startIndex)...]
         return ParseResult(input[..<remaining.startIndex], remaining)
     }
 }

@@ -13,13 +13,16 @@ public struct Map<P: Parser, Output>: Parser {
     @usableFromInline let parser: P
     @usableFromInline let transform: @Sendable (P.Output) throws -> Output
     
-    @inlinable public init(_ parser: P, _ transform: @Sendable @escaping (P.Output) throws -> Output) {
+    @inlinable public init(_ parser: P, _ transform: @Sendable @escaping ( P.Output) throws -> Output) {
         self.parser = parser
         self.transform = transform
     }
 
     @inlinable public func parse(_ input: P.Input) throws -> ParseResult<Output, P.Input>? {
-        return try parser.parse(input).map { ParseResult(try transform($0.output), $0.remaining) }
+        guard let result = try parser.parse(input) else {
+            return nil
+        }
+        return ParseResult(try transform(result.output), result.remaining)
     }
 }
 

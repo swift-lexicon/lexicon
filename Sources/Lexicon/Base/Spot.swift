@@ -18,8 +18,13 @@ where Input == Input.SubSequence {
     }
     
     @inlinable public func parse(_ input: Input) throws -> ParseResult<Input, Input>? {
-        var remaining = input
-        if let first = remaining.popFirst(), try predicate(first) {
+        guard !input.isEmpty else {
+            return nil
+        }
+        
+        let first = input[input.startIndex]
+        if try predicate(first) {
+            let remaining = input[input.index(after: input.startIndex)...]
             return ParseResult(input[..<remaining.startIndex], remaining)
         }
         return nil

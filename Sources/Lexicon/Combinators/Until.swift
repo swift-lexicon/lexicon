@@ -22,7 +22,7 @@ where End.Input: Collection, End.Input.SubSequence == End.Input {
         var remaining = input
         var untilResult = try end.parse(remaining)
         
-        while untilResult == nil && !remaining.isEmpty   {
+        while untilResult == nil && !remaining.isEmpty {
             _ = remaining.popFirst()
             untilResult = try end.parse(remaining)
         }

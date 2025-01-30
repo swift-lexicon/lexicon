@@ -10,5 +10,8 @@ public let endOfLine = Spot<Substring>(\.isNewline)
 public let endOfFile = End<Substring>()
 
 public let line = Until {
-    endOfLine
+    OneOf {
+        endOfLine
+        endOfFile
+    }
 }

@@ -20,8 +20,13 @@ where Input: Collection, Input.Element: Equatable, Input == Input.SubSequence {
     
     @inlinable
     public func parse(_ input: Input) -> ParseResult<Input, Input>? {
-        var remaining = input
-        if let first = remaining.popFirst(), first == token {
+        guard !input.isEmpty else {
+            return nil
+        }
+        
+        let first = input[input.startIndex]
+        if first == token {
+            let remaining = input[input.index(after: input.startIndex)...]
             return ParseResult(input[..<remaining.startIndex], remaining)
         }
         return nil

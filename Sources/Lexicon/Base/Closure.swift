@@ -18,10 +18,3 @@ public struct Closure<Input, Output>: Parser, Sendable {
         try closure(input)
     }
 }
-
-public func makeClosure<P: Parser>(_ parser: P) -> @Sendable (_ input: P.Input) throws -> ParseResult<P.Output, P.Input>?
-where P: Sendable {
-    { input in
-        try parser.parse(input)
-    }
-}
