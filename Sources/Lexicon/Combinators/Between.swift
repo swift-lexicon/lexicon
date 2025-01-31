@@ -23,8 +23,8 @@ where Begin.Input: Collection, Begin.Input == Begin.Input.SubSequence, Begin.Inp
     
     @inlinable
     public init(
-        @ParserBuilder begin: () -> Begin,
-        @ParserBuilder and end: () -> End
+        @DiscardBuilder begin: () -> Begin,
+        @DiscardBuilder and end: () -> End
     ) {
         self.begin = begin()
         self.untilEnd = Until(end())

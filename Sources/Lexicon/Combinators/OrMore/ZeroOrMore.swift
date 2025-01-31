@@ -17,7 +17,7 @@ public struct ZeroOrMore<RepeatParser: Parser>: Parser {
     @inlinable
     public init<P: Parser, Separator: Parser>(
         @ParseBuilder builder: () -> P,
-        @ParserBuilder separator: () -> Separator
+        @DiscardBuilder separator: () -> Separator
     )
     where RepeatParser == Repeat<RepeatParsers.RepeatSeparator<P, Separator>> {
         self.parser = Repeat(
@@ -30,7 +30,7 @@ public struct ZeroOrMore<RepeatParser: Parser>: Parser {
     @inlinable
     public init<P: Parser, Until: Parser>(
         @ParseBuilder builder: () -> P,
-        @ParserBuilder until: () -> Until
+        @DiscardBuilder until: () -> Until
     )
     where RepeatParser == Repeat<RepeatParsers.RepeatUntil<P, Until>> {
         self.parser = Repeat(

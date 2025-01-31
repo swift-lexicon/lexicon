@@ -15,8 +15,9 @@ public struct Capture<P: Parser>: CapturingParser {
     }
     
     @inlinable
-    public init(@ParserBuilder builder: () -> P) {
-        self.parser = builder()
+    public init<PC: ParserConvertible>(_ builder: () -> PC)
+    where P == PC.ParserType {
+        self.parser = builder().asParser
     }
     
     @inlinable

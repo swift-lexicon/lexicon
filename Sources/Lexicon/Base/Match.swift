@@ -23,7 +23,7 @@ where Input: Collection, Input: Equatable, Input.Element: Equatable, Input == In
     }
     
     @inlinable
-    public func parse(_ input: Input) throws -> ParseResult<Input, Input>? {
+    public func parse(_ input: Input) -> ParseResult<Input, Input>? {
         let matchee = input.prefix(matcher.count)
         if matchee == matcher {
             return ParseResult(matchee, input[matchee.endIndex...])

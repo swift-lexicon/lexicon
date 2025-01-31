@@ -114,7 +114,7 @@ public extension Repeat {
     init<P: Parser, Separator: Parser>(
         between: ClosedRange<Int>,
         @ParseBuilder _ builder: () -> P,
-        @ParserBuilder separator: () -> Separator
+        @DiscardBuilder separator: () -> Separator
     ) where RepeatParser == RepeatParsers.RepeatSeparator<P, Separator> {
         self.init(
             between: between,
@@ -127,7 +127,7 @@ public extension Repeat {
     init<P: Parser, Until: Parser>(
         between: ClosedRange<Int>,
         @ParseBuilder _ builder: () -> P,
-        @ParserBuilder until: () -> Until
+        @DiscardBuilder until: () -> Until
     ) where RepeatParser == RepeatParsers.RepeatUntil<P, Until> {
         self.init(
             between: between,
@@ -187,7 +187,7 @@ public extension Repeat {
     init<P: Parser, Separator: Parser>(
         between: PartialRangeThrough<Int>,
         @ParseBuilder _ builder: () -> P,
-        @ParserBuilder separator: () -> Separator
+        @DiscardBuilder separator: () -> Separator
     ) where RepeatParser == RepeatParsers.RepeatSeparator<P, Separator> {
         self.init(
             between: between,
@@ -200,7 +200,7 @@ public extension Repeat {
     init<P: Parser, Until: Parser>(
         between: PartialRangeThrough<Int>,
         @ParseBuilder _ builder: () -> P,
-        @ParserBuilder until: () -> Until
+        @DiscardBuilder until: () -> Until
     ) where RepeatParser == RepeatParsers.RepeatUntil<P, Until> {
         self.init(
             between: between,
@@ -263,7 +263,7 @@ public extension Repeat {
     init<P: Parser, Separator: Parser>(
         between: PartialRangeFrom<Int>,
         @ParseBuilder _ builder: () -> P,
-        @ParserBuilder separator: () -> Separator
+        @DiscardBuilder separator: () -> Separator
     ) where RepeatParser == RepeatParsers.RepeatSeparator<P, Separator> {
         self.init(
             between: between,
@@ -276,7 +276,7 @@ public extension Repeat {
     init<P: Parser, Until: Parser>(
         between: PartialRangeFrom<Int>,
         @ParseBuilder _ builder: () -> P,
-        @ParserBuilder until: () -> Until
+        @DiscardBuilder until: () -> Until
     ) where RepeatParser == RepeatParsers.RepeatUntil<P, Until> {
         self.init(
             between: between,
@@ -332,7 +332,7 @@ public extension Repeat {
     init<P: Parser, Separator: Parser>(
         times: Int,
         @ParseBuilder _ builder: () -> P,
-        @ParserBuilder _ separator: () -> Separator
+        @DiscardBuilder _ separator: () -> Separator
     ) where RepeatParser == RepeatParsers.RepeatSeparator<P, Separator> {
         self.init(
             times: times,
@@ -345,7 +345,7 @@ public extension Repeat {
     init<P: Parser, Until: Parser>(
         times: Int,
         @ParseBuilder _ builder: () -> P,
-        @ParserBuilder _ until: () -> Until
+        @DiscardBuilder _ until: () -> Until
     ) where RepeatParser == RepeatParsers.RepeatUntil<P, Until> {
         self.init(
             times: times,

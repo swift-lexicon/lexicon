@@ -18,6 +18,11 @@ public struct Try<P: Parser>: Parser {
         self.parser = parser
     }
     
+    public init<PC: ParserConvertible>(_ builder: () -> PC)
+    where P == PC.ParserType {
+        self.parser = builder().asParser
+    }
+    
     @inlinable public func parse(_ input: P.Input) throws -> ParseResult<P.Output?, P.Input>? {
         if let result = try parser.parse(input) {
             return ParseResult(result.output, result.remaining)
@@ -29,12 +34,6 @@ public struct Try<P: Parser>: Parser {
 extension Try: ParserConvertible {
     public var asParser: Self {
         self
-    }
-}
-
-public extension Try {
-    init(@ParserBuilder builder: () -> P) {
-        self.init(builder())
     }
 }
 

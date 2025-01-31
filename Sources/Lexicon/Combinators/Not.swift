@@ -15,7 +15,7 @@ where P.Input: Collection, P.Input.SubSequence == P.Input {
     }
     
     @inlinable
-    public init(@ParserBuilder _ builder: () -> P) {
+    public init(@DiscardBuilder _ builder: () -> P) {
         self.parser = builder()
     }
     

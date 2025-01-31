@@ -24,6 +24,7 @@ let input = """
 final class LexiconPerformanceTests: XCTestCase {
     // 2.52s
     // 1.80s after spot, token and not refactor
+    // 1.72s after variadic refactor
     func testPerformanceLexicon() throws {
         let user = Parse {
             integer.capture()
@@ -48,6 +49,38 @@ final class LexiconPerformanceTests: XCTestCase {
         var result: [User]?
         self.measure {
             for _ in 0...1000000 {
+                result = try! users.parse(input)?.output
+            }
+        }
+        
+        print(result as Any)
+    }
+    
+    // 1.83s surprisingly
+    func testPerformanceLexiconInlineDeclaration() throws {
+        var result: [User]?
+        self.measure {
+            for _ in 0...1000000 {
+                let user = Parse {
+                    integer.capture()
+                    Character(",")
+                    SkipWhile { Not { Character(",") } }.capture()
+                    Character(",")
+                    bool.capture()
+                }.map {
+                    User(
+                        id: $0.captures.0,
+                        name: String($0.captures.1),
+                        isAdmin: $0.captures.2
+                    )
+                }
+                
+                let users = ZeroOrMore {
+                    user.capture()
+                } separator: {
+                    Character("\n")
+                }.map { $0.map(\.captures) }
+                
                 result = try! users.parse(input)?.output
             }
         }
@@ -89,8 +122,8 @@ final class LexiconPerformanceTests: XCTestCase {
         
         print(result as Any)
     }
-    
-    
+//    
+//    
     func testPerformanceScanner() throws {
         
         self.measure {
