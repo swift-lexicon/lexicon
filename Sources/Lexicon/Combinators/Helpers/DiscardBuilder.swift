@@ -37,6 +37,8 @@ public extension DiscardBuilder {
     }
 }
 
+extension DiscardBuilder.DiscardBase: Sendable where P1: Sendable {}
+
 public extension DiscardBuilder {
     @inlinable
     static func buildPartialBlock<P1: ParserConvertible, P2: ParserConvertible>(
@@ -64,7 +66,7 @@ public extension DiscardBuilder {
             _ input: P1.Input
         ) throws -> ParseResult<(), P1.Input>? {
             guard let result1 = try parser1.parse(input),
-                  let result2 = try parser2.parse(input) else {
+                  let result2 = try parser2.parse(result1.remaining) else {
                 return nil
             }
             
