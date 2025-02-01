@@ -28,7 +28,7 @@ struct JsonObject: Parser {
             } separator: {
                 valueSeparator
             }
-            .map({ $0.map { $0.captures } })
+            .map({ $0.map(\.captures)})
             .capture()
             
             endObject.throwOnFailure(JsonParserError.objectMissingClosingBrace)

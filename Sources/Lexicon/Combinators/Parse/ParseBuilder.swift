@@ -10,11 +10,11 @@ public enum ParseBuilder { }
 
 // Base cases
 public extension ParseBuilder {
-    @inlinable static func buildPartialBlock<P: CapturingParser>(first: P) -> Capture<P> {
-        return Capture(first)
+    @inlinable static func buildPartialBlock<P: CapturingParser>(first: P) -> WithCapture<P> {
+        return WithCapture(first)
     }
     
-    struct Capture<P: Parser>: Parser {
+    struct WithCapture<P: Parser>: Parser {
         @usableFromInline let parser: P
         
         @inlinable init(_ parser: P) {
@@ -30,16 +30,16 @@ public extension ParseBuilder {
     }
 }
 
-extension ParseBuilder.Capture: Sendable where P: Sendable {}
+extension ParseBuilder.WithCapture: Sendable where P: Sendable {}
 
 public extension ParseBuilder {
     @inlinable static func buildPartialBlock<P: ParserConvertible>(
         first: P
-    ) -> NoCapture<P.ParserType> {
-        return NoCapture(first.asParser)
+    ) -> WithoutCapture<P.ParserType> {
+        return WithoutCapture(first.asParser)
     }
     
-    struct NoCapture<P: Parser>: Parser {
+    struct WithoutCapture<P: Parser>: Parser {
         @usableFromInline let parser: P
         
         @inlinable init(_ parser: P) {
@@ -55,22 +55,27 @@ public extension ParseBuilder {
     }
 }
 
-extension ParseBuilder.NoCapture: Sendable where P: Sendable {}
+extension ParseBuilder.WithoutCapture: Sendable where P: Sendable {}
 
 public extension ParseBuilder {
     @inlinable
-    static func buildPartialBlock<P1: Parser, P2: CapturingParser>(
-        accumulated: P1,
+    static func buildPartialBlock<P1: Parser, P2: ParserConvertible>(
+        accumulated: WithoutCapture<P1>,
         next: P2
-    ) -> CaptureFirst<P1, P2.ParserType> {
-        CaptureFirst(accumulated, next)
+    ) -> WithoutCapture<CaptureFirst<P1, P2.ParserType>> {
+        WithoutCapture(CaptureFirst(accumulated.parser, next.asParser))
+    }
+    
+    @inlinable
+    static func buildPartialBlock<P1: Parser, P2: ParserConvertible>(
+        accumulated: WithCapture<P1>,
+        next: P2
+    ) -> WithCapture<CaptureFirst<P1, P2.ParserType>> {
+        WithCapture(CaptureFirst(accumulated.parser, next.asParser))
     }
     
     struct CaptureFirst<P1: Parser, P2: Parser>: Parser
-    where
-        P1.Input == P2.Input,
-        P1.Output == Void
-    {
+    where P1.Input == P2.Input {
         @usableFromInline let parser1: P1, parser2: P2
         
         @inlinable init(_ parser1: P1, _ parser2: P2) {
@@ -80,10 +85,10 @@ public extension ParseBuilder {
         
         @inlinable public func parse(
             _ input: P1.Input
-        ) throws -> ParseResult<P2.Output, P1.Input>? {
+        ) throws -> ParseResult<P1.Output, P1.Input>? {
             if let result1 = try parser1.parse(input),
                let result2 = try parser2.parse(result1.remaining) {
-                return ParseResult(result2.output, result2.remaining)
+                return ParseResult(result1.output, result2.remaining)
             }
             return nil
         }
@@ -93,20 +98,15 @@ public extension ParseBuilder {
 extension ParseBuilder.CaptureFirst: Sendable where P1: Sendable, P2: Sendable {}
 
 public extension ParseBuilder {
-    @inlinable static func buildPartialBlock<
-        P1: Parser,
-        P2: ParserConvertible
-    >(
-        accumulated: P1,
+    @inlinable static func buildPartialBlock<P1: Parser, P2: CapturingParser>(
+        accumulated: WithoutCapture<P1>,
         next: P2
-    ) -> CaptureSecond<P1, P2.ParserType> {
-        CaptureSecond(accumulated, next.asParser)
+    ) -> WithCapture<CaptureSecond<P1, P2.ParserType>> {
+        WithCapture(CaptureSecond(accumulated.parser, next.asParser))
     }
 
     struct CaptureSecond<P1: Parser, P2: Parser>: Parser
-    where
-        P1.Input == P2.Input
-    {
+    where P1.Input == P2.Input {
         @usableFromInline let parser1: P1, parser2: P2
 
         @inlinable init(_ parser1: P1, _ parser2: P2) {
@@ -116,10 +116,10 @@ public extension ParseBuilder {
 
         @inlinable public func parse(
             _ input: P1.Input
-        ) throws -> ParseResult<P1.Output, P1.Input>? {
+        ) throws -> ParseResult<P2.Output, P1.Input>? {
             if let result1 = try parser1.parse(input),
                let result2 = try parser2.parse(result1.remaining) {
-                return ParseResult(result1.output, result2.remaining)
+                return ParseResult(result2.output, result2.remaining)
             }
             return nil
         }
@@ -135,15 +135,18 @@ public extension ParseBuilder {
         P2: CapturingParser,
         each P1Output
     >(
-        accumulated: P1,
+        accumulated: WithCapture<P1>,
         next: P2
-    ) -> CaptureBoth<P1, P2>.CombineBoth<(repeat each P1Output, P2.Output)>
-    where
+    ) -> WithCapture<
+        CaptureBoth<P1, P2>.CombineBoth<(repeat each P1Output, P2.Output)>
+    > where
         P1.Output == (repeat each P1Output)
     {
-        CaptureBoth(accumulated, next).combine { accumulatedCaptures, nextCapture in
-            (repeat each accumulatedCaptures, nextCapture)
-        }
+        WithCapture(
+            CaptureBoth(accumulated.parser, next).combine { accumulatedCaptures, nextCapture in
+                (repeat each accumulatedCaptures, nextCapture)
+            }
+        )
     }
 
     struct CaptureBoth<P1: Parser, P2: Parser>: Parser
@@ -175,6 +178,8 @@ public extension ParseBuilder {
     }
 }
 
+extension ParseBuilder.CaptureBoth: Sendable where P1: Sendable, P2: Sendable {}
+
 public extension ParseBuilder.CaptureBoth {
     struct CombineBoth<Captures>: Parser {
         @usableFromInline let parser: ParseBuilder.CaptureBoth<P1, P2>
@@ -203,14 +208,13 @@ public extension ParseBuilder.CaptureBoth {
     }
 }
 
-extension ParseBuilder.CaptureBoth: Sendable where P1: Sendable, P2: Sendable {}
+extension ParseBuilder.CaptureBoth.CombineBoth: Sendable where P1: Sendable, P2: Sendable {}
 
 public extension ParseBuilder {
     @inlinable static func buildFinalResult<P1: Parser>(
-        _ parser: P1
-    ) -> ParseFinalVoid<P1>
-    where P1.Output == Void {
-        ParseFinalVoid(parser)
+        _ parser: WithoutCapture<P1>
+    ) -> ParseFinalVoid<P1> {
+        ParseFinalVoid(parser.parser)
     }
 
     struct ParseFinalVoid<P1: Parser>: Parser
@@ -242,12 +246,11 @@ public extension ParseBuilder {
 
 extension ParseBuilder.ParseFinalVoid: Sendable where P1: Sendable {}
 
-
 public extension ParseBuilder {
     @inlinable static func buildFinalResult<P1: Parser>(
-        _ parser: P1
+        _ parser: WithCapture<P1>
     ) -> ParseFinalCaptures<P1> {
-        ParseFinalCaptures(parser)
+        ParseFinalCaptures(parser.parser)
     }
 
     struct ParseFinalCaptures<P1: Parser>: Parser

@@ -21,6 +21,25 @@ let input = """
   3,Blob Sr.,true
   """
 
+//let test: Parse<
+//
+//ParseBuilder.CaptureFirst<
+//    ParseBuilder.CaptureBoth<
+//        ParseBuilder.CaptureFirst<
+//            Capture<
+//                Token<Substring>
+//            >,
+//            Token<Substring>
+//        >,
+//        Capture<
+//            Token<Substring>
+//        >
+//    >.CombineBoth<
+//        (Substring, Substring)
+//    >,
+//    Token<Substring>
+//>
+
 final class LexiconPerformanceTests: XCTestCase {
     // 2.52s
     // 1.80s after spot, token and not refactor
@@ -56,96 +75,110 @@ final class LexiconPerformanceTests: XCTestCase {
         print(result as Any)
     }
     
-    // 1.83s surprisingly
-    func testPerformanceLexiconInlineDeclaration() throws {
-        var result: [User]?
-        self.measure {
-            for _ in 0...1000000 {
-                let user = Parse {
-                    integer.capture()
-                    Character(",")
-                    SkipWhile { Not { Character(",") } }.capture()
-                    Character(",")
-                    bool.capture()
-                }.map {
-                    User(
-                        id: $0.captures.0,
-                        name: String($0.captures.1),
-                        isAdmin: $0.captures.2
-                    )
-                }
-                
-                let users = ZeroOrMore {
-                    user.capture()
-                } separator: {
-                    Character("\n")
-                }.map { $0.map(\.captures) }
-                
-                result = try! users.parse(input)?.output
+    func testSomethingElse() throws {
+        let parser = Parse {
+            Character("a")
+            
+            ZeroOrMore {
+                Character("a").asParser.capture()
             }
-        }
+            .map({ $0.map(\.captures)})
+            .capture()
+        }.map({ $0 })
         
-        print(result as Any)
+        
     }
-    
-    // 1.24s
-    func testPerformanceLexiconUtf8() throws {
-        let user = Parse {
-            integerUtf8.capture()
-            Token<String.UTF8View.SubSequence>(",".utf8.first!)
-            SkipWhile { Not { Token<String.UTF8View.SubSequence>(",".utf8.first!) } }.capture()
-            Token<String.UTF8View.SubSequence>(",".utf8.first!)
-            OneOf {
-                Match("true".utf8).map { _ in true }
-                Match("false".utf8).map {_ in false }
-            }.capture()
-        }.map {
-            User(
-                id: $0.captures.0,
-                name: String($0.captures.1)!,
-                isAdmin: $0.captures.2
-            )
-        }
-        
-        let users = ZeroOrMore {
-            user.capture()
-        } separator: {
-            Token<String.UTF8View.SubSequence>("\n".utf8.first!)
-        }.map { $0.map(\.captures) }
-        
-        var result: [User]?
-        self.measure {
-            for _ in 0...1000000 {
-                result = try! users.parse(input.utf8[...])?.output
-            }
-        }
-        
-        print(result as Any)
-    }
+//
+//    // 1.83s surprisingly
+//    func testPerformanceLexiconInlineDeclaration() throws {
+//        var result: [User]?
+//        self.measure {
+//            for _ in 0...1000000 {
+//                let user = Parse {
+//                    integer.capture()
+//                    Character(",")
+//                    SkipWhile { Not { Character(",") } }.capture()
+//                    Character(",")
+//                    bool.capture()
+//                }.map {
+//                    User(
+//                        id: $0.captures.0,
+//                        name: String($0.captures.1),
+//                        isAdmin: $0.captures.2
+//                    )
+//                }
+//                
+//                let users = ZeroOrMore {
+//                    user.capture()
+//                } separator: {
+//                    Character("\n")
+//                }.map { $0.map(\.captures) }
+//                
+//                result = try! users.parse(input)?.output
+//            }
+//        }
+//        
+//        print(result as Any)
+//    }
 //    
-//    
-    func testPerformanceScanner() throws {
-        
-        self.measure {
-            for _ in 0...1000000 {
-                var users: [User] = []
-                let scanner = Scanner(string: input)
-                while scanner.currentIndex != input.endIndex {
-                    guard
-                        let id = scanner.scanInt(),
-                        let _ = scanner.scanString(","),
-                        let name = scanner.scanUpToString(","),
-                        let _ = scanner.scanString(","),
-                        let isAdmin = scanner.scanBool()
-                    else { break }
-                    
-                    
-                    users.append(User(id: id, name: name, isAdmin: isAdmin))
-                    _ = scanner.scanString("\n")
-                }
-            }
-        }
-    }
+//    // 1.24s
+//    func testPerformanceLexiconUtf8() throws {
+//        let user = Parse {
+//            integerUtf8.capture()
+//            Token<String.UTF8View.SubSequence>(",".utf8.first!)
+//            SkipWhile { Not { Token<String.UTF8View.SubSequence>(",".utf8.first!) } }.capture()
+//            Token<String.UTF8View.SubSequence>(",".utf8.first!)
+//            OneOf {
+//                Match("true".utf8).map { _ in true }
+//                Match("false".utf8).map {_ in false }
+//            }.capture()
+//        }.map {
+//            User(
+//                id: $0.captures.0,
+//                name: String($0.captures.1)!,
+//                isAdmin: $0.captures.2
+//            )
+//        }
+//        
+//        let users = ZeroOrMore {
+//            user.capture()
+//        } separator: {
+//            Token<String.UTF8View.SubSequence>("\n".utf8.first!)
+//        }.map { $0.map(\.captures) }
+//        
+//        var result: [User]?
+//        self.measure {
+//            for _ in 0...1000000 {
+//                result = try! users.parse(input.utf8[...])?.output
+//            }
+//        }
+//        
+//        print(result as Any)
+//    }
+////    
+////    
+//    func testPerformanceScanner() throws {
+//        
+//        self.measure {
+//            for _ in 0...1000000 {
+//                var users: [User] = []
+//                let scanner = Scanner(string: input)
+//                while scanner.currentIndex != input.endIndex {
+//                    guard
+//                        let id = scanner.scanInt(),
+//                        let _ = scanner.scanString(","),
+//                        let name = scanner.scanUpToString(","),
+//                        let _ = scanner.scanString(","),
+//                        let isAdmin = scanner.scanBool()
+//                    else { break }
+//                    
+//                    
+//                    users.append(User(id: id, name: name, isAdmin: isAdmin))
+//                    _ = scanner.scanString("\n")
+//                }
+//            }
+//        }
+//    }
 }
 
 
