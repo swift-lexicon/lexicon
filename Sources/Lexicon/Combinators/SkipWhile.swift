@@ -10,18 +10,18 @@
  Keeps consuming tokens until the provided condition is no longer true.
  */
 public struct SkipWhile<P: Parser>: Parser
-where P.Input: Collection, P.Input.SubSequence == P.Input {
+where P.Input: Collection,
+      P.Input.SubSequence == P.Input,
+      P.Output == P.Input
+{
     @usableFromInline let parser: P
-    
-    @inlinable public init(_ parser: P) {
-        self.parser = parser
-    }
     
     @inlinable public init(@DiscardBuilder builder: () -> P) {
         self.parser = builder()
     }
     
-    @inlinable public func parse(_ input: P.Input) throws -> ParseResult<P.Input, P.Input>? {
+    @inlinable
+    public func parse(_ input: P.Input) throws -> ParseResult<P.Input, P.Input>? {
         var remaining = input
         
         while let newRemaining = try parser.parse(remaining)?.remaining {
@@ -29,6 +29,26 @@ where P.Input: Collection, P.Input.SubSequence == P.Input {
         }
         
         return ParseResult(input[..<remaining.startIndex], remaining)
+    }
+}
+
+extension SkipWhile: Printer
+where P: PrinterWithRemaining, P.Input: EmptyInitializable & Appendable {
+    @inlinable
+    public func print(_ output: P.Input) throws -> P.Input? {
+        var input = Input()
+        var remaining = output
+        
+        while let result = try parser.printWithRemaining(remaining) {
+            input.append(contentsOf: result.input)
+            remaining = result.remaining
+        }
+        
+        if !remaining.isEmpty {
+            return nil
+        }
+        
+        return input
     }
 }
 

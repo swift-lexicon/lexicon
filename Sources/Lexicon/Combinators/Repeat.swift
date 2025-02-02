@@ -355,33 +355,33 @@ public extension Repeat {
     }
 }
 
-extension Parser {
+extension ParserConvertible {
     @inlinable
     public func repeating(times: Int) -> Repeat<
-        RepeatParsers.RepeatBasic<Self>
+        RepeatParsers.RepeatBasic<ParserType>
     > {
-        return Repeat(times: times, parser: self)
+        return Repeat(times: times, parser: self.asParser)
     }
     
     @inlinable
     public func repeating(between: ClosedRange<Int>) -> Repeat<
-        RepeatParsers.RepeatBasic<Self>
+        RepeatParsers.RepeatBasic<ParserType>
     > {
-        return Repeat(between: between, parser: self)
+        return Repeat(between: between, parser: self.asParser)
     }
     
     @inlinable
     public func repeating(between: PartialRangeFrom<Int>) -> Repeat<
-        RepeatParsers.RepeatBasic<Self>
+        RepeatParsers.RepeatBasic<ParserType>
     > {
-        return Repeat(between: between, parser: self)
+        return Repeat(between: between, parser: self.asParser)
     }
     
     @inlinable
     public func repeating(between: PartialRangeThrough<Int>) -> Repeat<
-        RepeatParsers.RepeatBasic<Self>
+        RepeatParsers.RepeatBasic<ParserType>
     > {
-        return Repeat(between: between, parser: self)
+        return Repeat(between: between, parser: self.asParser)
     }
 }
 

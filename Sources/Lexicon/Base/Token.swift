@@ -35,6 +35,18 @@ where Input: Collection, Input.Element: Equatable, Input == Input.SubSequence {
 
 extension Token: Sendable where Input.Element: Sendable {}
 
+extension Token: Printer {
+    @inlinable
+    public func print(_ output: Input) throws -> Input? {
+        guard output.count == 1,
+              output[output.startIndex] == token else {
+            throw PrinterError.cannotPrint
+        }
+        
+        return output
+    }
+}
+
 extension Character: ParserConvertible {
     @inlinable public var asParser: Token<Substring> {
         Token<Substring>(self)

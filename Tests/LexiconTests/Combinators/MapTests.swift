@@ -21,4 +21,18 @@ final class MapTests: XCTestCase {
         
         XCTAssertNotNil(result)
     }
+    
+    func testMapPrint() throws {
+        let input = "abc"
+        let parser = Match("abc").map {
+            $0.count
+        } invert: { _ in
+            return "abc"
+        }
+        
+        let result = try parser.parse(input)
+        let printResult = try parser.print(result!.output)
+                
+        XCTAssertNotNil(result)
+    }
 }

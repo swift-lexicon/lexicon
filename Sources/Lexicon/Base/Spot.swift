@@ -30,3 +30,15 @@ where Input == Input.SubSequence {
         return nil
     }
 }
+
+extension Spot: Printer {
+    @inlinable
+    public func print(_ output: Input) throws -> Input? {
+        guard output.count == 1,
+              try predicate(output[output.startIndex]) else {
+            return nil
+        }
+        
+        return output
+    }
+}

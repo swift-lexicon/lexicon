@@ -15,3 +15,14 @@ public struct End<Input: Collection>: Parser, Sendable {
         return nil
     }
 }
+
+extension End: Printer {
+    @inlinable
+    public func print(_ output: Input) throws -> Input? {
+        guard output.isEmpty else {
+            return nil
+        }
+        
+        return output
+    }
+}

@@ -52,5 +52,18 @@ public extension OneOfBuilder {
     }
 }
 
+extension OneOfBuilder.OneOfAccumulator: Printer where P1: Printer, P2: Printer {
+    @inlinable
+    public func print(_ output: P1.Output) throws -> P1.Input? {
+        if let result = try parser1.print(output) {
+            return result
+        }
+        if let result = try parser2.print(output) {
+            return result
+        }
+        return nil
+    }
+}
+
 extension OneOfBuilder.OneOfAccumulator: Sendable
 where P1: Sendable, P2: Sendable {}

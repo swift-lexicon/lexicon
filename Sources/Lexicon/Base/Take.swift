@@ -37,3 +37,14 @@ where Input: Collection, Input == Input.SubSequence {
         return nil
     }
 }
+
+extension Take: Printer {
+    @inlinable
+    public func print(_ output: Input) throws -> Input? {
+        guard output.count == count else {
+            return nil
+        }
+        
+        return output
+    }
+}

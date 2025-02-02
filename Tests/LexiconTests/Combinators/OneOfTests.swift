@@ -28,4 +28,28 @@ final class OneOfTests: XCTestCase {
         
         XCTAssertNil(result)
     }
+    
+    func testOneOfPrintSucceedsWithValidChild() throws {
+        let input = "match"
+        let parser = OneOf {
+            Match("notmatch")
+            Match("match")
+        }
+        
+        let result = try parser.print(input[...])
+        
+        XCTAssertEqual(result, input[...])
+    }
+    
+    func testOneOfPrintFailsWithoutValidChild() throws {
+        let input = "match"
+        let parser = OneOf {
+            Match("notmatch")
+            Match("notmatcheither")
+        }
+        
+        let result = try parser.print(input[...])
+        
+        XCTAssertNil(result)
+    }
 }

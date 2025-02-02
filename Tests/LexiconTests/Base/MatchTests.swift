@@ -30,4 +30,22 @@ final class MatchTests: XCTestCase {
         
         XCTAssertNil(result)
     }
+    
+    func testIdenticalMatchPrintSucceeds() throws {
+        let input = "match"
+        let parser = Match("match")
+        
+        let result = try parser.print(input[...])
+        
+        XCTAssertEqual(result, input[...])
+    }
+    
+    func testNonIdenticalMatchPrintFails() throws {
+        let input = "match"
+        let parser = Match("match")
+        
+        let result = try parser.print(input[...])
+        
+        XCTAssertEqual(result, input[...])
+    }
 }

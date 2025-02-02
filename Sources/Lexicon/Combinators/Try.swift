@@ -40,8 +40,8 @@ extension Try: ParserConvertible {
 extension Try: Sendable where P: Sendable {}
 extension Try: CapturingParser where P: CapturingParser {}
 
-public extension Parser {
-    func optional() -> Try<Self> {
-        Try(self)
+public extension ParserConvertible {
+    func optional() -> Try<ParserType> {
+        Try(self.asParser)
     }
 }

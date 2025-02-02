@@ -29,10 +29,10 @@ public protocol Parser<Input, Output>: ParserConvertible where ParserType == Sel
     func parse(_ input: Input) throws -> ParseResult<Output, Input>?
 }
 
-public extension Parser
-where Input == Substring {
+public extension Parser {
     @inlinable
-    func parse(_ input: String) throws -> ParseResult<Output, Substring>? {
+    func parse<I>(_ input: I) throws -> ParseResult<Output, Input>?
+    where I: Collection, I.SubSequence == Input {
         try self.parse(input[...])
     }
 }

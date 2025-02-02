@@ -88,6 +88,53 @@ final class LexiconPerformanceTests: XCTestCase {
         
         
     }
+    
+    func testLongNoMatch() throws {
+        let parser = Parse {
+            SkipWhile { Character(" ") }
+            Character("A").asParser.capture()
+        }
+        
+        let input = String(repeating: " ", count: 5000000)
+        
+        var result: Substring?
+        self.measure {
+            result = try? parser.parse(input)?.output.captures
+        }
+        
+        print(result)
+    }
+    
+    func testLongNoMatchUtf8() throws {
+        let parser = Parse {
+            SkipWhile {
+                Token<String.UTF8View.SubSequence>(" ".utf8.first!)
+            }
+            Token<String.UTF8View.SubSequence>("A".utf8.first!).capture()
+        }
+        
+        let input = String(repeating: " ", count: 5000000)
+        
+        var result: String.UTF8View.SubSequence?
+        self.measure {
+            result = try? parser.parse(input.utf8[...])?.output.captures
+        }
+        
+        print(result)
+    }
+    
+    func testLongNoRegexMatch() throws {
+        let regex = try Regex("^ +A")
+        
+        let input = String(repeating: " ", count: 5000000)
+        
+        var result: Regex<AnyRegexOutput>.Match?
+        self.measure {
+            result = try? regex.firstMatch(in: input)
+        }
+        
+        print(result)
+    }
 //
 //    // 1.83s surprisingly
 //    func testPerformanceLexiconInlineDeclaration() throws {

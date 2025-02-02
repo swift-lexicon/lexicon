@@ -63,7 +63,9 @@ internal let stringSyntax = Parse {
         character
     }.capture()
     quotationMark
-}.map(\.captures)
+}.map {
+    $0.captures
+}
 
 @usableFromInline
 internal let escapedCharacterSet = CharacterSet([

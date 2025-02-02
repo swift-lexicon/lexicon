@@ -32,6 +32,17 @@ where Input: Collection, Input: Equatable, Input.Element: Equatable, Input == In
     }
 }
 
+extension Match: Printer {
+    @inlinable
+    public func print(_ output: Input) throws -> Input? {
+        guard output == matcher else {
+            return nil
+        }
+        
+        return output
+    }
+}
+
 extension Match: Sendable where Input: Sendable {}
 
 extension String.UTF8View.SubSequence: @retroactive Equatable {

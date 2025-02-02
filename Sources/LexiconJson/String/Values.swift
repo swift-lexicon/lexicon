@@ -75,15 +75,15 @@ struct JsonArray: Parser {
 public struct JsonParser: Parser {
     // true  = %x74.72.75.65      ; true
     @usableFromInline
-    internal let trueLiteral = "true".asParser.map { _ in JsonValue.boolean(value: true) }
+    internal let trueLiteral = "true".map { _ in JsonValue.boolean(value: true) }
 
     // false = %x66.61.6c.73.65   ; false
     @usableFromInline
-    internal let falseLiteral = "false".asParser.map { _ in JsonValue.boolean(value: false) }
+    internal let falseLiteral = "false".map { _ in JsonValue.boolean(value: false) }
 
     // null  = %x6e.75.6c.6c      ; null
     @usableFromInline
-    internal let nullLiteral = "null".asParser.map { _ in JsonValue.null }
+    internal let nullLiteral = "null".map { _ in JsonValue.null }
 
     // string = quotation-mark *char quotation-mark
     @usableFromInline
