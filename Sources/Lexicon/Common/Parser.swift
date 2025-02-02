@@ -22,6 +22,10 @@ public protocol Parser<Input, Output>: ParserConvertible where ParserType == Sel
     associatedtype Input
     associatedtype Output
     
+    associatedtype Body
+
+    var body: Body { get }
+    
     func parse(_ input: Input) throws -> ParseResult<Output, Input>?
 }
 
@@ -30,6 +34,26 @@ where Input == Substring {
     @inlinable
     func parse(_ input: String) throws -> ParseResult<Output, Substring>? {
         try self.parse(input[...])
+    }
+}
+
+extension Parser where Body == Never {
+    @inlinable
+    public var body: Body {
+        fatalError(
+            """
+            '\(Self.self)' has no body. 
+            A parser must either define a body or a parse function.
+            """
+        )
+    }
+}
+
+public extension Parser
+where Body: Parser<Input, Output> {
+    @inlinable
+    func parse(_ input: Body.Input) throws -> ParseResult<Body.Output, Body.Input>? {
+        try self.body.parse(input)
     }
 }
 

@@ -15,12 +15,6 @@ struct User {
     let isAdmin: Bool
 }
 
-let input = """
-  1,Blob,true
-  2,Blob Jr.,false
-  3,Blob Sr.,true
-  """
-
 //let test: Parse<
 //
 //ParseBuilder.CaptureFirst<
@@ -41,6 +35,12 @@ let input = """
 //>
 
 final class LexiconPerformanceTests: XCTestCase {
+    let input = """
+      1,Blob,true
+      2,Blob Jr.,false
+      3,Blob Sr.,true
+      """
+    
     // 2.52s
     // 1.80s after spot, token and not refactor
     // 1.72s after variadic refactor

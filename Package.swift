@@ -27,7 +27,7 @@ let package = Package(
         ),
         .testTarget(
             name: "LexiconPerformanceTests",
-            dependencies: ["Lexicon"]
+            dependencies: ["Lexicon", "LexiconJson"]
         ),
     ]
 )

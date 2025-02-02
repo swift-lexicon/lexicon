@@ -8,9 +8,10 @@
 import Foundation
 import Lexicon
 
+@usableFromInline
 struct JsonObject: Parser {
-    // object = begin-object [ member *( value-separator member ) ] end-object
     // member = string name-separator value
+    @inlinable
     internal var member: some Parser<Substring, (Substring, JsonValue)> {
         Parse {
             stringSyntax.capture()
@@ -19,7 +20,9 @@ struct JsonObject: Parser {
         }.map { $0.captures }
     }
     
-    internal var objectValue: some Parser<Substring, JsonValue> {
+    // object = begin-object [ member *( value-separator member ) ] end-object
+    @inlinable
+    internal var body: some Parser<Substring, JsonValue> {
         Parse {
             beginObject
             
@@ -41,14 +44,15 @@ struct JsonObject: Parser {
         }
     }
     
-    public func parse(_ input: Substring) throws -> ParseResult<JsonValue, Substring>? {
-        try objectValue.parse(input)
-    }
+    @inlinable
+    init() {}
 }
 
+@usableFromInline
 struct JsonArray: Parser {
     // array = begin-array [ value *( value-separator value ) ] end-array
-    internal var arrayValue: some Parser<Substring, JsonValue> {
+    @inlinable
+    internal var body: some Parser<Substring, JsonValue> {
         Parse {
             beginArray
             
@@ -64,14 +68,33 @@ struct JsonArray: Parser {
         }.map({ JsonValue.array(value: $0.captures ) })
     }
     
-    public func parse(_ input: Substring) throws -> ParseResult<JsonValue, Substring>? {
-        try arrayValue.parse(input)
-    }
+    @inlinable
+    init() {}
 }
 
 public struct JsonParser: Parser {
-    // value = false / null / true / object / array / number / string
-    internal var jsonValueParser: some Parser<Substring, JsonValue> {
+    // true  = %x74.72.75.65      ; true
+    @usableFromInline
+    internal let trueLiteral = "true".asParser.map { _ in JsonValue.boolean(value: true) }
+
+    // false = %x66.61.6c.73.65   ; false
+    @usableFromInline
+    internal let falseLiteral = "false".asParser.map { _ in JsonValue.boolean(value: false) }
+
+    // null  = %x6e.75.6c.6c      ; null
+    @usableFromInline
+    internal let nullLiteral = "null".asParser.map { _ in JsonValue.null }
+
+    // string = quotation-mark *char quotation-mark
+    @usableFromInline
+    internal let stringValue = stringSyntax.map { JsonValue.string(value: String($0)) }
+
+    // number = [ minus ] int [ frac ] [ exp ]
+    @usableFromInline
+    internal let numberValue = number.map { JsonValue.number(value: Double($0)!) }
+    
+    @inlinable
+    public var body: some Parser<Substring, JsonValue> {
         Parse {
             ws
             OneOf {
@@ -86,27 +109,11 @@ public struct JsonParser: Parser {
             .throwOnFailure(JsonParserError.notAValidJsonValue)
             .capture()
             ws
-        }.map(\.captures)
+        }.map { $0.captures }
     }
     
-    // true  = %x74.72.75.65      ; true
-    internal let trueLiteral = "true".asParser.map { _ in JsonValue.boolean(value: true) }
-
-    // false = %x66.61.6c.73.65   ; false
-    internal let falseLiteral = "false".asParser.map { _ in JsonValue.boolean(value: false) }
-
-    // null  = %x6e.75.6c.6c      ; null
-    internal let nullLiteral = "null".asParser.map { _ in JsonValue.null }
-
-    // string = quotation-mark *char quotation-mark
-    internal let stringValue = stringSyntax.map { JsonValue.string(value: String($0)) }
-
-    // number = [ minus ] int [ frac ] [ exp ]
-    internal let numberValue = number.map { JsonValue.number(value: Double($0)!) }
-    
-    public func parse(_ input: Substring) throws -> ParseResult<JsonValue, Substring>? {
-        try jsonValueParser.parse(input)
-    }
+    @inlinable
+    init() {}
 }
 
 extension JsonParser: Sendable {}

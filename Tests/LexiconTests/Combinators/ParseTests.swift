@@ -33,150 +33,43 @@ final class ParseTests: XCTestCase {
         
         let result = try parser.parse(input[...])
         
-        XCTAssertNotNil(result)
+        XCTAssertEqual(result?.output.captures, [0])
     }
     
     func testParse2Capture() throws {
-        let input: [Int] = [0, 0]
+        let input: [Int] = [0, 1]
         let parser = Parse {
             Token<ArraySlice<Int>>(0).capture()
-            Token<ArraySlice<Int>>(0).capture()
+            Token<ArraySlice<Int>>(1).capture()
         }
         
         let result = try parser.parse(input[...])
         
-        XCTAssertNotNil(result)
+        XCTAssertEqual(result?.output.captures.0, [0])
+        XCTAssertEqual(result?.output.captures.1, [1])
     }
     
-    func testParse3Capture() throws {
-        let input: [Int] = [0, 0, 0]
+    func testParseVoidCapture() throws {
+        let input: [Int] = [0, 1]
         let parser = Parse {
-            Token<ArraySlice<Int>>(0).capture()
-            Token<ArraySlice<Int>>(0).capture()
-            Token<ArraySlice<Int>>(0).capture()
+            Token<ArraySlice<Int>>(0)
+            Token<ArraySlice<Int>>(1).capture()
         }
         
         let result = try parser.parse(input[...])
         
-        XCTAssertNotNil(result)
+        XCTAssertEqual(result?.output.captures, [1])
     }
     
-    func testParse4Capture() throws {
-        let input: [Int] = [0, 0, 0, 0]
+    func testParseCaptureVoid() throws {
+        let input: [Int] = [0, 1]
         let parser = Parse {
             Token<ArraySlice<Int>>(0).capture()
-            Token<ArraySlice<Int>>(0).capture()
-            Token<ArraySlice<Int>>(0).capture()
-            Token<ArraySlice<Int>>(0).capture()
+            Token<ArraySlice<Int>>(1)
         }
         
         let result = try parser.parse(input[...])
         
-        XCTAssertNotNil(result)
-    }
-    
-    func testParse5Capture() throws {
-        let input: [Int] = [0, 0, 0, 0, 0]
-        let parser = Parse {
-            Token<ArraySlice<Int>>(0).capture()
-            Token<ArraySlice<Int>>(0).capture()
-            Token<ArraySlice<Int>>(0).capture()
-            Token<ArraySlice<Int>>(0).capture()
-            Token<ArraySlice<Int>>(0).capture()
-        }
-        
-        let result = try parser.parse(input[...])
-        
-        XCTAssertNotNil(result)
-    }
-    
-    func testParse6Capture() throws {
-        let input: [Int] = [0, 0, 0, 0, 0, 0]
-        let parser = Parse {
-            Token<ArraySlice<Int>>(0).capture()
-            Token<ArraySlice<Int>>(0).capture()
-            Token<ArraySlice<Int>>(0).capture()
-            Token<ArraySlice<Int>>(0).capture()
-            Token<ArraySlice<Int>>(0).capture()
-            Token<ArraySlice<Int>>(0).capture()
-        }
-        
-        let result = try parser.parse(input[...])
-        
-        XCTAssertNotNil(result)
-    }
-    
-    func testParse7Capture() throws {
-        let input: [Int] = [0, 0, 0, 0, 0, 0, 0]
-        let parser = Parse {
-            Token<ArraySlice<Int>>(0).capture()
-            Token<ArraySlice<Int>>(0).capture()
-            Token<ArraySlice<Int>>(0).capture()
-            Token<ArraySlice<Int>>(0).capture()
-            Token<ArraySlice<Int>>(0).capture()
-            Token<ArraySlice<Int>>(0).capture()
-            Token<ArraySlice<Int>>(0).capture()
-        }
-        
-        let result = try parser.parse(input[...])
-        
-        XCTAssertNotNil(result)
-    }
-    
-    func testParse8Capture() throws {
-        let input: [Int] = [0, 0, 0, 0, 0, 0, 0, 0]
-        let parser = Parse {
-            Token<ArraySlice<Int>>(0).capture()
-            Token<ArraySlice<Int>>(0).capture()
-            Token<ArraySlice<Int>>(0).capture()
-            Token<ArraySlice<Int>>(0).capture()
-            Token<ArraySlice<Int>>(0).capture()
-            Token<ArraySlice<Int>>(0).capture()
-            Token<ArraySlice<Int>>(0).capture()
-            Token<ArraySlice<Int>>(0).capture()
-        }
-        
-        let result = try parser.parse(input[...])
-        
-        XCTAssertNotNil(result)
-    }
-    
-    func testParse9Capture() throws {
-        let input: [Int] = [0, 0, 0, 0, 0, 0, 0, 0, 0]
-        let parser = Parse {
-            Token<ArraySlice<Int>>(0).capture()
-            Token<ArraySlice<Int>>(0).capture()
-            Token<ArraySlice<Int>>(0).capture()
-            Token<ArraySlice<Int>>(0).capture()
-            Token<ArraySlice<Int>>(0).capture()
-            Token<ArraySlice<Int>>(0).capture()
-            Token<ArraySlice<Int>>(0).capture()
-            Token<ArraySlice<Int>>(0).capture()
-            Token<ArraySlice<Int>>(0).capture()
-        }
-        
-        let result = try parser.parse(input[...])
-        
-        XCTAssertNotNil(result)
-    }
-    
-    func testParse10Capture() throws {
-        let input: [Int] = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
-        let parser = Parse {
-            Token<ArraySlice<Int>>(0).capture()
-            Token<ArraySlice<Int>>(0).capture()
-            Token<ArraySlice<Int>>(0).capture()
-            Token<ArraySlice<Int>>(0).capture()
-            Token<ArraySlice<Int>>(0).capture()
-            Token<ArraySlice<Int>>(0).capture()
-            Token<ArraySlice<Int>>(0).capture()
-            Token<ArraySlice<Int>>(0).capture()
-            Token<ArraySlice<Int>>(0).capture()
-            Token<ArraySlice<Int>>(0).capture()
-        }
-        
-        let result = try parser.parse(input[...])
-        
-        XCTAssertNotNil(result)
+        XCTAssertEqual(result?.output.captures, [0])
     }
 }

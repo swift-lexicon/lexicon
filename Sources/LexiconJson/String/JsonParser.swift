@@ -9,4 +9,4 @@ import Foundation
 import Lexicon
 
 
-//public let jsonParser = jsonValueParser
+public let jsonParser = JsonParser()
