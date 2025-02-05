@@ -10,12 +10,12 @@ public let matchNaturalNumber = Parse {
     ZeroOrMore {
         asciiNumber
     }
-}.map(\.match)
+}
 
 public let matchNegativeNumber = Parse {
     Character("-")
     matchNaturalNumber
-}.map(\.match)
+}
 
 public let matchInteger = OneOf {
     matchNaturalNumber

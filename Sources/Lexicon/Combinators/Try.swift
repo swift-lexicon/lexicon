@@ -40,6 +40,18 @@ extension Try: ParserConvertible {
 extension Try: Sendable where P: Sendable {}
 extension Try: CapturingParser where P: CapturingParser {}
 
+extension Try: Printer
+where P: Printer, P.Input: EmptyInitializable {
+    @inlinable
+    public func print(_ output: P.Output?) throws -> P.Input? {
+        guard let output else {
+            return Input()
+        }
+        
+        return try parser.print(output)
+    }
+}
+
 public extension ParserConvertible {
     func optional() -> Try<ParserType> {
         Try(self.asParser)

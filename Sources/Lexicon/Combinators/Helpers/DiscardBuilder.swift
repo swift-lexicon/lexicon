@@ -12,8 +12,8 @@ public extension DiscardBuilder {
     @inlinable
     static func buildPartialBlock<P: ParserConvertible>(
         first: P
-    ) -> P.ParserType {
-        return first.asParser
+    ) -> DiscardBase<P.ParserType> {
+        return DiscardBase(first.asParser)
     }
     
     struct DiscardBase<P1: Parser>: Parser
@@ -38,15 +38,22 @@ public extension DiscardBuilder {
     }
 }
 
-extension DiscardBuilder.DiscardBase: PrinterWithRemaining & Printer where P1: Printer {
+extension DiscardBuilder.DiscardBase: InputPrinter where P1: Printer {
     @inlinable
-    public func printWithRemaining(_ output: P1.Input) throws -> PrintResult<P1.Input, P1.Input>? {
+    public func printWithRemaining(_ output: P1.Input) throws -> InputPrintResult<P1.Input>? {
         if let parseResult = try parser.parse(output),
            let printResult = try parser.print(parseResult.output) {
-            return PrintResult(printResult, parseResult.remaining)
+            return InputPrintResult(printResult, parseResult.remaining)
         }
         
         return nil
+    }
+}
+
+extension DiscardBuilder.DiscardBase: VoidPrinter where P1: VoidPrinter {
+    @inlinable
+    public func print() throws -> P1.Input? {
+        try parser.print()
     }
 }
 
@@ -89,21 +96,37 @@ public extension DiscardBuilder {
     }
 }
 
-extension DiscardBuilder.DiscardAccumulator: PrinterWithRemaining & Printer
+extension DiscardBuilder.DiscardAccumulator: InputPrinter
 where
-    P1: Printer,
+    P1: InputPrinter,
     P2: Printer,
     P1.Input: Appendable
 {
-    public func printWithRemaining(_ output: P1.Input) throws -> PrintResult<P1.Input, P1.Input>? {
-        if let parseResult1 = try parser1.parse(output),
-           let parseResult2 = try parser2.parse(parseResult1.remaining),
-           let input1 = try parser1.print(parseResult1.output),
-           let input2 = try parser2.print(parseResult2.output) {
+    @inlinable
+    public func printWithRemaining(_ output: P1.Input) throws -> InputPrintResult<P1.Input>? {
+        if let printResult = try parser1.printWithRemaining(output),
+           let parseResult = try parser2.parse(printResult.remaining),
+           let input2 = try parser2.print(parseResult.output) {
+            var input = printResult.input
+            input.append(contentsOf: input2)
+            
+            return InputPrintResult(input, printResult.remaining)
+        }
+        
+        return nil
+    }
+}
+
+extension DiscardBuilder.DiscardAccumulator: VoidPrinter
+where P1: VoidPrinter, P2: VoidPrinter, P1.Input: Appendable {
+    @inlinable
+    public func print() throws -> P1.Input? {
+        if let input1 = try parser1.print(),
+           let input2 = try parser2.print() {
             var input = input1
             input.append(contentsOf: input2)
             
-            return PrintResult(input, parseResult2.remaining)
+            return input
         }
         
         return nil

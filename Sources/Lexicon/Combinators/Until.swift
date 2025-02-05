@@ -32,3 +32,17 @@ where End.Input: Collection, End.Input.SubSequence == End.Input {
 }
 
 extension Until: Sendable where End: Sendable {}
+
+extension Until: Printer
+where End: VoidPrinter, End.Input: Appendable {
+    @inlinable
+    public func print(_ output: End.Input) throws -> End.Input? {
+        guard let endInput = try end.print() else {
+            return nil
+        }
+        var input = output
+        input.append(contentsOf: endInput)
+        
+        return input
+    }
+}

@@ -56,10 +56,11 @@ public extension ParserConvertible {
     }
 }
 
-extension Map: Printer where
+extension Map: ParserPrinter & Printer where
     Invert == @Sendable (Output) throws -> P.Output?,
     P: Printer
 {
+    @inlinable
     public func print(_ output: Output) throws -> P.Input? {
         guard let invert else {
             fatalError("Map does not have an invert method specified. This code should be unreachable.")

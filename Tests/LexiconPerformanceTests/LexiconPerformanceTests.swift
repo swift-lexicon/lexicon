@@ -51,11 +51,12 @@ final class LexiconPerformanceTests: XCTestCase {
             SkipWhile { Not { Character(",") } }.capture()
             Character(",")
             bool.capture()
-        }.map {
+        }
+        .map {
             User(
-                id: $0.captures.0,
-                name: String($0.captures.1),
-                isAdmin: $0.captures.2
+                id: $0.0,
+                name: String($0.1),
+                isAdmin: $0.2
             )
         }
         
@@ -63,7 +64,7 @@ final class LexiconPerformanceTests: XCTestCase {
             user.capture()
         } separator: {
             Character("\n")
-        }.map { $0.map(\.captures) }
+        }
         
         var result: [User]?
         self.measure {
@@ -82,7 +83,6 @@ final class LexiconPerformanceTests: XCTestCase {
             ZeroOrMore {
                 Character("a").asParser.capture()
             }
-            .map({ $0.map(\.captures)})
             .capture()
         }.map({ $0 })
         
@@ -99,7 +99,7 @@ final class LexiconPerformanceTests: XCTestCase {
         
         var result: Substring?
         self.measure {
-            result = try? parser.parse(input)?.output.captures
+            result = try? parser.parse(input)?.output
         }
         
         print(result)
@@ -117,7 +117,7 @@ final class LexiconPerformanceTests: XCTestCase {
         
         var result: String.UTF8View.SubSequence?
         self.measure {
-            result = try? parser.parse(input.utf8[...])?.output.captures
+            result = try? parser.parse(input.utf8[...])?.output
         }
         
         print(result)

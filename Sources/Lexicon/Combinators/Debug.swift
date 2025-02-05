@@ -30,6 +30,13 @@ public struct Debug<P: Parser>: Parser {
     }
 }
 
+extension Debug: Printer where P: Printer {
+    @inlinable
+    public func print(_ output: P.Output) throws -> P.Input? {
+        try parser.print(output)
+    }
+}
+
 public extension ParserConvertible {
     @inlinable
     func debug(

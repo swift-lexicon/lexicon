@@ -43,6 +43,13 @@ extension Match: Printer {
     }
 }
 
+extension Match: VoidPrinter {
+    @inlinable
+    public func print() throws -> Input? {
+        return matcher
+    }
+}
+
 extension Match: Sendable where Input: Sendable {}
 
 extension String.UTF8View.SubSequence: @retroactive Equatable {

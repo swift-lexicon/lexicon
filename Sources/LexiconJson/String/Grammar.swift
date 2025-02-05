@@ -12,49 +12,49 @@ import Lexicon
 @usableFromInline
 internal let beginArray = Parse {
     ws
-    Capture { Character("[") }
+    Character("[")
     ws
-}.map(\.captures)
+}.defaultPrint("[ ")
 
 // end-array       = ws %x5D ws  ; ] right square bracket
 @usableFromInline
 internal let endArray = Parse {
     ws
-    Capture { Character("]") }
+    Character("]")
     ws
-}.map(\.captures)
+}.defaultPrint(" ]")
 
 // begin-object    = ws %x7B ws  ; { left curly bracket
 @usableFromInline
 internal let beginObject = Parse {
     ws
-    Capture { Character("{") }
+    Character("{")
     ws
-}.map(\.captures)
+}.defaultPrint("{ ")
 
 // end-object      = ws %x7D ws  ; } right curly bracket
 @usableFromInline
 internal let endObject = Parse {
     ws
-    Capture { Character("}") }
+    Character("}")
     ws
-}.map(\.captures)
+}.defaultPrint(" }")
 
 // name-separator  = ws %x3A ws  ; : colon
 @usableFromInline
 internal let nameSeparator = Parse {
     ws
-    Capture { Character(":") }
+    Character(":")
     ws
-}.map(\.captures)
+}.defaultPrint(": ")
 
 // value-separator = ws %x2C ws  ; , comma
 @usableFromInline
 internal let valueSeparator = Parse {
     ws
-    Capture { Character(",") }
+    Character(",")
     ws
-}.map(\.captures)
+}.defaultPrint(", ")
 
 /*
  ws = *(

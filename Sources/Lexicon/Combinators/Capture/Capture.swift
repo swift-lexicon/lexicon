@@ -28,6 +28,13 @@ public struct Capture<P: Parser>: CapturingParser {
 
 extension Capture: Sendable where P: Sendable {}
 
+extension Capture: Printer where P: Printer {
+    @inlinable
+    public func print(_ output: P.Output) throws -> P.Input? {
+        try parser.print(output)
+    }
+}
+
 public extension ParserConvertible {
     @inlinable
     func capture() -> Capture<Self.ParserType> {

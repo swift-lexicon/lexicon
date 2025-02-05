@@ -13,4 +13,4 @@ public protocol Appendable: Collection {
 }
 
 extension Substring: Appendable {}
-extension Array: Appendable {}
+extension ArraySlice: Appendable {}

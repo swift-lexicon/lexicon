@@ -47,3 +47,10 @@ public struct OneOrMore<RepeatParser: Parser>: Parser {
 }
 
 extension OneOrMore: Sendable where RepeatParser: Sendable {}
+
+extension OneOrMore: Printer where RepeatParser: Printer {
+    @inlinable
+    public func print(_ output: RepeatParser.Output) throws -> RepeatParser.Input? {
+        try parser.print(output)
+    }
+}

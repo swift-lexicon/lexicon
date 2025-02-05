@@ -11,8 +11,7 @@
  */
 public struct SkipWhile<P: Parser>: Parser
 where P.Input: Collection,
-      P.Input.SubSequence == P.Input,
-      P.Output == P.Input
+      P.Input.SubSequence == P.Input
 {
     @usableFromInline let parser: P
     
@@ -33,7 +32,7 @@ where P.Input: Collection,
 }
 
 extension SkipWhile: Printer
-where P: PrinterWithRemaining, P.Input: EmptyInitializable & Appendable {
+where P: InputPrinter, P.Input: EmptyInitializable & Appendable {
     @inlinable
     public func print(_ output: P.Input) throws -> P.Input? {
         var input = Input()
