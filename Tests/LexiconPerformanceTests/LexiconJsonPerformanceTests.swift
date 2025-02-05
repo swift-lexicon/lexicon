@@ -52,13 +52,27 @@ final class LexiconJsonPerformanceTests: XCTestCase {
     
     func testPerformanceLexicon() throws {
         var result: JsonValue?
+        
         self.measure {
             for _ in 0...10000 {
                 result = try! jsonParser.parse(input)?.output
             }
         }
         
-        print(result as Any)
+        print(result!)
+    }
+    
+    func testPerformanceLexiconPrint() throws {
+        let parseResult = try! jsonParser.parse(input)?.output
+        
+        var printResult: Substring?
+        self.measure {
+            for _ in 0...10000 {
+                printResult = try! jsonParser.print(parseResult!)
+            }
+        }
+        
+        print(printResult!)
     }
     
     func testPerformanceJSONDecoder() throws {

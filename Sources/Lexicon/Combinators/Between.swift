@@ -40,3 +40,19 @@ where Begin.Input: Collection, Begin.Input == Begin.Input.SubSequence, Begin.Inp
 }
 
 extension Between: Sendable where Begin: Sendable, End: Sendable {}
+
+extension Between: Printer
+where Begin: VoidPrinter, End: VoidPrinter, Begin.Input: Appendable {
+    @inlinable
+    public func print(_ output: Begin.Input) throws -> Begin.Input? {
+        guard let inputBegin = try begin.print(),
+              let inputUntil = try untilEnd.print(output) else {
+            return nil
+        }
+        
+        var input = inputBegin
+        input.append(contentsOf: inputUntil)
+        
+        return input
+    }
+}

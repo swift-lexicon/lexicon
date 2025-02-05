@@ -9,20 +9,20 @@ import Foundation
 import Lexicon
 
 @usableFromInline
-struct JsonObject: Parser {
+struct JsonObject: ParserPrinter {
     // member = string name-separator value
     @inlinable
-    internal var member: some Parser<Substring, (Substring, JsonValue)> {
+    internal var member: some ParserPrinter<Substring, (Substring, JsonValue)> {
         Parse {
-            stringSyntax.capture()
+            StringSyntax().capture()
             nameSeparator.throwOnFailure(JsonParserError.objectMissingNameSeparator)
             JsonParser().capture()
-        }.map { $0.captures }
+        }
     }
     
     // object = begin-object [ member *( value-separator member ) ] end-object
     @inlinable
-    internal var body: some Parser<Substring, JsonValue> {
+    internal var body: some ParserPrinter<Substring, JsonValue> {
         Parse {
             beginObject
             
@@ -31,16 +31,21 @@ struct JsonObject: Parser {
             } separator: {
                 valueSeparator
             }
-            .map({ $0.map(\.captures)})
             .capture()
             
             endObject.throwOnFailure(JsonParserError.objectMissingClosingBrace)
         }.map {
             var dictionary: [String: JsonValue] = [:]
-            for (key, value) in $0.captures {
+            for (key, value) in $0 {
                 dictionary[String(key)] = value
             }
             return JsonValue.object(value: dictionary)
+        } invert: {
+            guard case .object(let value) = $0 else {
+                return nil
+            }
+            
+            return value.map { ($0[...], $1) }
         }
     }
     
@@ -49,10 +54,10 @@ struct JsonObject: Parser {
 }
 
 @usableFromInline
-struct JsonArray: Parser {
+struct JsonArray: ParserPrinter {
     // array = begin-array [ value *( value-separator value ) ] end-array
     @inlinable
-    internal var body: some Parser<Substring, JsonValue> {
+    internal var body: some ParserPrinter<Substring, JsonValue> {
         Parse {
             beginArray
             
@@ -61,42 +66,89 @@ struct JsonArray: Parser {
             } separator: {
                 valueSeparator
             }
-            .map({ $0.map(\.captures) })
             .capture()
             
             endArray.throwOnFailure(JsonParserError.arrayMissingClosingBracket)
-        }.map({ JsonValue.array(value: $0.captures ) })
+        }.map {
+            JsonValue.array(value: $0 )
+        } invert: { jsonValue in
+            guard case .array(let value) = jsonValue else {
+                return nil
+            }
+            
+            return value
+        }
     }
     
     @inlinable
     init() {}
 }
 
-public struct JsonParser: Parser {
+public struct JsonParser: ParserPrinter {
     // true  = %x74.72.75.65      ; true
     @usableFromInline
-    internal let trueLiteral = "true".asParser.map { _ in JsonValue.boolean(value: true) }
+    internal let trueLiteral = "true".map {
+        _ in JsonValue.boolean(value: true)
+    } invert: { jsonValue in
+        guard case .boolean(let value) = jsonValue else {
+            return nil
+        }
+        
+        return "\(value)"
+    }
 
     // false = %x66.61.6c.73.65   ; false
     @usableFromInline
-    internal let falseLiteral = "false".asParser.map { _ in JsonValue.boolean(value: false) }
+    internal let falseLiteral = "false".map {
+        _ in JsonValue.boolean(value: false)
+    } invert: { jsonValue in
+        guard case .boolean(let value) = jsonValue else {
+            return nil
+        }
+        
+        return "\(value)"
+    }
 
     // null  = %x6e.75.6c.6c      ; null
     @usableFromInline
-    internal let nullLiteral = "null".asParser.map { _ in JsonValue.null }
+    internal let nullLiteral = "null".map {
+        _ in JsonValue.null
+    } invert: { jsonValue in
+        guard case .null = jsonValue else {
+            return nil
+        }
+        
+        return "null"
+    }
 
     // string = quotation-mark *char quotation-mark
     @usableFromInline
-    internal let stringValue = stringSyntax.map { JsonValue.string(value: String($0)) }
+    internal let stringValue = StringSyntax().map {
+        JsonValue.string(value: String($0))
+    } invert: { jsonValue in
+        guard case .string(let value) = jsonValue else {
+            return nil
+        }
+        
+        return value[...]
+    }
 
     // number = [ minus ] int [ frac ] [ exp ]
     @usableFromInline
-    internal let numberValue = number.map { JsonValue.number(value: Double($0)!) }
+    internal let numberValue = Number().map {
+        JsonValue.number(value: Double($0)!)
+    } invert: { jsonValue in
+        guard case .number(let value) = jsonValue else {
+            return nil
+        }
+        
+        return "\(value)"
+    }
     
     @inlinable
-    public var body: some Parser<Substring, JsonValue> {
+    public var body: some ParserPrinter<Substring, JsonValue> {
         Parse {
-            ws
+            ws.defaultPrint("")
             OneOf {
                 JsonArray()
                 JsonObject()
@@ -108,8 +160,8 @@ public struct JsonParser: Parser {
             }
             .throwOnFailure(JsonParserError.notAValidJsonValue)
             .capture()
-            ws
-        }.map { $0.captures }
+            ws.defaultPrint("")
+        }
     }
     
     @inlinable

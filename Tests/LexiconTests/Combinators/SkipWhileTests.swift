@@ -35,4 +35,17 @@ final class SkipWhileTests: XCTestCase {
         XCTAssertEqual(result?.output, [0, 0, 0])
         XCTAssertEqual(result?.remaining, [1])
     }
+    
+    func testSkipWhilePrint() throws {
+        let input = "abcabcabc"
+        let parser = SkipWhile {
+            Match("a")
+            Match("b")
+            Match("c")
+        }
+        
+        let result = try parser.print(input[...])
+        
+        print(result)
+    }
 }

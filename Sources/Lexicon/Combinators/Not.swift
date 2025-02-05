@@ -33,3 +33,18 @@ where P.Input: Collection, P.Input.SubSequence == P.Input {
         return ParseResult(input[..<remaining.startIndex], remaining)
     }
 }
+
+extension Not: Printer {
+    @inlinable
+    public func print(_ output: P.Input) throws -> P.Input? {
+        if let _ = try parser.parse(output) {
+            return nil
+        }
+        
+        guard !output.isEmpty else {
+            return nil
+        }
+        
+        return output[..<output.index(after: output.startIndex)]
+    }
+}

@@ -38,9 +38,25 @@ public struct Throw<P: Parser>: Parser where P.Input: Sendable{
 
 extension Throw: Sendable where P: Sendable {}
 
-extension Parser where Input: Sendable {
+extension Throw: Printer where P: Printer {
     @inlinable
-    public func throwOnFailure(_ throwingClosure: @escaping @autoclosure @Sendable () -> Error) -> Throw<Self> {
-        return Throw(self, throwingClosure())
+    public func print(_ output: P.Output) throws -> P.Input? {
+        try parser.print(output)
+    }
+}
+
+extension Throw: VoidPrinter where P: VoidPrinter {
+    @inlinable
+    public func print() throws -> P.Input? {
+        try parser.print()
+    }
+}
+
+extension ParserConvertible where ParserType.Input: Sendable {
+    @inlinable
+    public func throwOnFailure(
+        _ throwingClosure: @escaping @autoclosure @Sendable () -> Error
+    ) -> Throw<ParserType> {
+        return Throw(self.asParser, throwingClosure())
     }
 }

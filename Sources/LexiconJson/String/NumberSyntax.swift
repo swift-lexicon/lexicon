@@ -10,12 +10,19 @@ import Lexicon
 
 // number = [ minus ] int [ frac ] [ exp ]
 @usableFromInline
-internal let number = Parse {
-    minus.optional()
-    int
-    frac.optional()
-    exp.optional()
-}.map(\.match)
+struct Number: ParserPrinter, Sendable {
+    @inlinable init() {}
+    
+    @inlinable
+    var body: some ParserPrinter<Substring, Substring> {
+        Parse {
+            minus.optional()
+            Integer()
+            Frac().optional()
+            Exp().optional()
+        }
+    }
+}
 
 // decimal-point = %x2E       ; .
 @usableFromInline
@@ -42,38 +49,59 @@ internal let e = OneOf {
 
 // exp = e [ minus / plus ] 1*DIGIT
 @usableFromInline
-internal let exp = Parse {
-    e
-    Try {
-        OneOf {
-            minus
-            plus
+struct Exp: ParserPrinter {
+    @inlinable init() {}
+    
+    @inlinable
+    var body: some ParserPrinter<Substring, Substring> {
+        Parse {
+            e
+            Try {
+                OneOf {
+                    minus
+                    plus
+                }
+            }
+            OneOrMore {
+                asciiNumber
+            }.throwOnFailure(JsonParserError.exponentialMissingDigits)
         }
     }
-    OneOrMore {
-        asciiNumber
-    }.throwOnFailure(JsonParserError.exponentialMissingDigits)
 }
 
 // frac = decimal-point 1*DIGIT
 @usableFromInline
-internal let frac = Parse {
-    decimalPoint
-    OneOrMore {
-        asciiNumber
-    }.throwOnFailure(JsonParserError.fractionMissingDigits)
+struct Frac: ParserPrinter {
+    @inlinable init() {}
+    
+    @inlinable
+    var body: some ParserPrinter<Substring, Substring> {
+        Parse {
+            decimalPoint
+            OneOrMore {
+                asciiNumber
+            }.throwOnFailure(JsonParserError.fractionMissingDigits)
+        }
+    }
 }
 
 // int = zero / ( digit1-9 *DIGIT )
 @usableFromInline
-internal let int = OneOf {
-    zero
-    Parse {
-        digit1To9
-        ZeroOrMore {
-            asciiNumber
+struct Integer: ParserPrinter {
+    @inlinable init() {}
+    
+    @inlinable
+    var body: some ParserPrinter<Substring, Substring> {
+        OneOf {
+            zero
+            Parse {
+                digit1To9
+                ZeroOrMore {
+                    asciiNumber
+                }
+            }
         }
-    }.map(\.match)
+    }
 }
 
 // minus = %x2D               ; -

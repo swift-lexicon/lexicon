@@ -35,8 +35,32 @@ where Input: Collection, Input.Element: Equatable, Input == Input.SubSequence {
 
 extension Token: Sendable where Input.Element: Sendable {}
 
+extension Token: Printer {
+    @inlinable
+    public func print(_ output: Input) throws -> Input? {
+        guard output.count == 1,
+              output[output.startIndex] == token else {
+            return nil
+        }
+        
+        return output
+    }
+}
+
+extension Token: VoidPrinter
+where Input: EmptyInitializable & Appendable {
+    @inlinable
+    public func print() throws -> Input? {
+        var input = Input()
+        input.append(token)
+        
+        return input
+    }
+}
+
 extension Character: ParserConvertible {
-    @inlinable public var asParser: Token<Substring> {
+    @inlinable
+    public var asParser: Token<Substring> {
         Token<Substring>(self)
     }
 }

@@ -19,4 +19,11 @@ public struct OneOf<P: Parser>: Parser {
     }
 }
 
+extension OneOf: ParserPrinter & Printer where P: Printer {
+    @inlinable
+    public func print(_ output: P.Output) throws -> P.Input? {
+        try parser.print(output)
+    }
+}
+
 extension OneOf: Sendable where P: Sendable {}

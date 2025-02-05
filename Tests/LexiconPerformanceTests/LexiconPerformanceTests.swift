@@ -51,11 +51,12 @@ final class LexiconPerformanceTests: XCTestCase {
             SkipWhile { Not { Character(",") } }.capture()
             Character(",")
             bool.capture()
-        }.map {
+        }
+        .map {
             User(
-                id: $0.captures.0,
-                name: String($0.captures.1),
-                isAdmin: $0.captures.2
+                id: $0.0,
+                name: String($0.1),
+                isAdmin: $0.2
             )
         }
         
@@ -63,7 +64,7 @@ final class LexiconPerformanceTests: XCTestCase {
             user.capture()
         } separator: {
             Character("\n")
-        }.map { $0.map(\.captures) }
+        }
         
         var result: [User]?
         self.measure {
@@ -82,11 +83,57 @@ final class LexiconPerformanceTests: XCTestCase {
             ZeroOrMore {
                 Character("a").asParser.capture()
             }
-            .map({ $0.map(\.captures)})
             .capture()
         }.map({ $0 })
         
         
+    }
+    
+    func testLongNoMatch() throws {
+        let parser = Parse {
+            SkipWhile { Character(" ") }
+            Character("A").asParser.capture()
+        }
+        
+        let input = String(repeating: " ", count: 5000000)
+        
+        var result: Substring?
+        self.measure {
+            result = try? parser.parse(input)?.output
+        }
+        
+        print(result)
+    }
+    
+    func testLongNoMatchUtf8() throws {
+        let parser = Parse {
+            SkipWhile {
+                Token<String.UTF8View.SubSequence>(" ".utf8.first!)
+            }
+            Token<String.UTF8View.SubSequence>("A".utf8.first!).capture()
+        }
+        
+        let input = String(repeating: " ", count: 5000000)
+        
+        var result: String.UTF8View.SubSequence?
+        self.measure {
+            result = try? parser.parse(input.utf8[...])?.output
+        }
+        
+        print(result)
+    }
+    
+    func testLongNoRegexMatch() throws {
+        let regex = try Regex("^ +A")
+        
+        let input = String(repeating: " ", count: 5000000)
+        
+        var result: Regex<AnyRegexOutput>.Match?
+        self.measure {
+            result = try? regex.firstMatch(in: input)
+        }
+        
+        print(result)
     }
 //
 //    // 1.83s surprisingly

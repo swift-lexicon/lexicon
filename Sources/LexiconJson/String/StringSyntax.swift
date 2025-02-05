@@ -48,22 +48,36 @@ internal let unescaped = Spot<Substring>(isUnescaped)
          %x75 4HEXDIG )  ; uXXXX                U+XXXX
  */
 @usableFromInline
-internal let character = OneOf {
-    unescaped
-    Parse {
-        escape
-        escaped
-    }.map(\.match)
+struct CharacterSyntax: ParserPrinter {
+    @inlinable init() {}
+    
+    @inlinable
+    var body: some ParserPrinter<Substring, Substring> {
+        OneOf {
+            unescaped
+            Parse {
+                escape
+                Escaped()
+            }
+        }
+    }
 }
 
 @usableFromInline
-internal let stringSyntax = Parse {
-    quotationMark
-    SkipWhile {
-        character
-    }.capture()
-    quotationMark
-}.map(\.captures)
+struct StringSyntax: ParserPrinter, Sendable {
+    @inlinable init() {}
+    
+    @inlinable
+    var body: some ParserPrinter<Substring, Substring> {
+        Parse {
+            quotationMark
+            SkipWhile {
+                CharacterSyntax()
+            }.capture()
+            quotationMark
+        }
+    }
+}
 
 @usableFromInline
 internal let escapedCharacterSet = CharacterSet([
@@ -86,13 +100,27 @@ internal func isEscapedCharacter(_ character: Character) -> Bool {
 }
 
 @usableFromInline
-internal let escapedHexRepresentation = Parse {
-    Character("u")
-    hexDigit.repeating(times: 4)
-}.map(\.match)
+struct EscapedHexRepresentation: ParserPrinter, Sendable {
+    @inlinable init() {}
+    
+    @inlinable
+    var body: some ParserPrinter<Substring, Substring> {
+        Parse {
+            Character("u")
+            hexDigit.repeating(times: 4)
+        }
+    }
+}
 
 @usableFromInline
-internal let escaped = OneOf {
-    Spot<Substring>(isEscapedCharacter)
-    escapedHexRepresentation
+struct Escaped: ParserPrinter, Sendable {
+    @inlinable init() {}
+    
+    @inlinable
+    var body: some ParserPrinter<Substring, Substring> {
+        OneOf {
+            Spot<Substring>(isEscapedCharacter)
+            EscapedHexRepresentation()
+        }
+    }
 }

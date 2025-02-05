@@ -30,9 +30,19 @@ public struct Debug<P: Parser>: Parser {
     }
 }
 
-public extension Parser {
+extension Debug: Printer where P: Printer {
     @inlinable
-    func debug(before: @escaping (Input) -> (), after: @escaping (ParseResult<Output, Input>?) -> ()) -> Debug<Self> {
-        .init(self, before: before, after: after)
+    public func print(_ output: P.Output) throws -> P.Input? {
+        try parser.print(output)
+    }
+}
+
+public extension ParserConvertible {
+    @inlinable
+    func debug(
+        before: @escaping (ParserType.Input) -> (),
+        after: @escaping (ParseResult<ParserType.Output, ParserType.Input>?) -> ()
+    ) -> Debug<ParserType> {
+        .init(self.asParser, before: before, after: after)
     }
 }

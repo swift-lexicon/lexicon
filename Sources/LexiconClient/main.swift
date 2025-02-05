@@ -11,9 +11,9 @@ import Lexicon
 
 let listOfNames = "alex,lottie,\"smith,steven\",ainslie,david"
 
-print(listOfNames.split(separator: ","))
 // Wrong result!
 // ["alex", "lottie", "\"smith", "steven\"", "ainslie", "david"]
+print(listOfNames.split(separator: ","))
 
 let quotedField = Parse {
     Character("\"")
@@ -21,7 +21,7 @@ let quotedField = Parse {
         Not { Character("\"") }
     }.capture()
     Character("\"")
-}.map(\.captures)
+}
 
 let unquotedField = SkipWhile {
     Not {
@@ -36,10 +36,15 @@ let commaSeparatedParser = ZeroOrMore {
     }.capture()
 } separator: {
     Character(",")
-}.map { $0.map(\.captures) }
+}
 
 let names = try commaSeparatedParser.parse(listOfNames)
 
-print(names as Any)
 // Right result!
 // Optional(["alex", "lottie", "smith,steven", "ainslie", "david"])
+print(names?.output as Any)
+
+
+let backToCSV = try commaSeparatedParser.print(names!.output)
+print(backToCSV as Any)
+// Optional("\"alex\",\"lottie\",\"smith,steven\",\"ainslie\",\"david\"")

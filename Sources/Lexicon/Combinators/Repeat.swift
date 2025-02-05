@@ -355,37 +355,45 @@ public extension Repeat {
     }
 }
 
-extension Parser {
+extension ParserConvertible {
     @inlinable
     public func repeating(times: Int) -> Repeat<
-        RepeatParsers.RepeatBasic<Self>
+        RepeatParsers.RepeatBasic<ParserType>
     > {
-        return Repeat(times: times, parser: self)
+        return Repeat(times: times, parser: self.asParser)
     }
     
     @inlinable
     public func repeating(between: ClosedRange<Int>) -> Repeat<
-        RepeatParsers.RepeatBasic<Self>
+        RepeatParsers.RepeatBasic<ParserType>
     > {
-        return Repeat(between: between, parser: self)
+        return Repeat(between: between, parser: self.asParser)
     }
     
     @inlinable
     public func repeating(between: PartialRangeFrom<Int>) -> Repeat<
-        RepeatParsers.RepeatBasic<Self>
+        RepeatParsers.RepeatBasic<ParserType>
     > {
-        return Repeat(between: between, parser: self)
+        return Repeat(between: between, parser: self.asParser)
     }
     
     @inlinable
     public func repeating(between: PartialRangeThrough<Int>) -> Repeat<
-        RepeatParsers.RepeatBasic<Self>
+        RepeatParsers.RepeatBasic<ParserType>
     > {
-        return Repeat(between: between, parser: self)
+        return Repeat(between: between, parser: self.asParser)
     }
 }
 
 extension Repeat: Sendable where RepeatParser: Sendable {}
+
+extension Repeat: Printer where RepeatParser: Printer {
+    public func print(
+        _ output: RepeatParser.Output
+    ) throws -> RepeatParser.Input? {
+        try parser.print(output)
+    }
+}
 
 public enum RepeatParsers {}
 
@@ -430,6 +438,27 @@ public extension RepeatParsers {
 }
 
 extension RepeatParsers.RepeatBasic: Sendable where P: Sendable {}
+
+extension RepeatParsers.RepeatBasic: Printer
+where P: Printer, P.Input: EmptyInitializable & Appendable {
+    public func print(_ output: [P.Output]) throws -> P.Input? {
+        guard output.count >= lowerBound,
+              upperBound.map({ output.count <= $0}) ?? true else {
+            return nil
+        }
+        
+        var input = Input()
+        for output in output {
+            guard let inputElement = try parser.print(output) else {
+                return nil
+            }
+            
+            input.append(contentsOf: inputElement)
+        }
+        
+        return input
+    }
+}
 
 public extension RepeatParsers {
     struct RepeatSeparator<P: Parser, Separator: Parser>: Parser
@@ -490,6 +519,44 @@ public extension RepeatParsers {
 extension RepeatParsers.RepeatSeparator: Sendable
 where P: Sendable, Separator: Sendable {}
 
+extension RepeatParsers.RepeatSeparator: Printer
+where
+    P: Printer,
+    Separator: VoidPrinter,
+    P.Input: EmptyInitializable & Appendable
+{
+    @inlinable
+    public func print(_ outputs: [P.Output]) throws -> P.Input? {
+        guard outputs.count >= lowerBound,
+              upperBound.map({ outputs.count <= $0}) ?? true else {
+            return nil
+        }
+        
+        var input = Input()
+        var i = 0
+        while i < outputs.count {
+            let output = outputs[i]
+            
+            guard let inputElement = try parser.print(output) else {
+                return nil
+            }
+            
+            input.append(contentsOf: inputElement)
+            
+            if i < outputs.count - 1 {
+                guard let separatorInput = try separator.print() else {
+                    return nil
+                }
+                input.append(contentsOf: separatorInput)
+            }
+            
+            i += 1
+        }
+        
+        return input
+    }
+}
+
 public extension RepeatParsers {
     struct RepeatUntil<P: Parser, Until: Parser>: Parser
     where P.Input == Until.Input {
@@ -548,3 +615,29 @@ public extension RepeatParsers {
 
 extension RepeatParsers.RepeatUntil: Sendable
 where P: Sendable, Until: Sendable {}
+
+extension RepeatParsers.RepeatUntil: Printer
+where P: Printer, Until: VoidPrinter, P.Input: Appendable & EmptyInitializable {
+    @inlinable
+    public func print(_ output: [P.Output]) throws -> P.Input? {
+        guard output.count >= lowerBound,
+              upperBound.map({ output.count <= $0}) ?? true else {
+            return nil
+        }
+        
+        var input = Input()
+        for output in output {
+            guard let inputElement = try parser.print(output) else {
+                return nil
+            }
+            
+            input.append(contentsOf: inputElement)
+        }
+        guard let untilInput = try until.print() else {
+            return nil
+        }
+        input.append(contentsOf: untilInput)
+        
+        return input
+    }
+}

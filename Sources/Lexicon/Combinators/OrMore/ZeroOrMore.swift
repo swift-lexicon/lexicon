@@ -47,3 +47,10 @@ public struct ZeroOrMore<RepeatParser: Parser>: Parser {
 }
 
 extension ZeroOrMore: Sendable where RepeatParser: Sendable {}
+
+extension ZeroOrMore: Printer where RepeatParser: Printer {
+    @inlinable
+    public func print(_ output: RepeatParser.Output) throws -> RepeatParser.Input? {
+        try parser.print(output)
+    }
+}

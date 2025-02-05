@@ -19,26 +19,10 @@ public struct Parse<P: Parser>: Parser {
 
 extension Parse: Sendable where P: Sendable {}
 
-public struct ParseMatchWithoutCaptures<Input> {
-    public let match: Input
-    
+extension Parse: ParserPrinter & Printer
+where P: Printer {
     @inlinable
-    public init(_ match: Input) {
-        self.match = match
+    public func print(_ output: P.Output) throws -> P.Input? {
+        try parser.print(output)
     }
 }
-
-extension ParseMatchWithoutCaptures: Sendable where Input: Sendable {}
-
-public struct ParseMatchWithCaptures<Captures, Input> {
-    public let match: Input
-    public let captures: Captures
-    
-    @inlinable
-    public init(_ match: Input, _ captures: Captures) {
-        self.match = match
-        self.captures = captures
-    }
-}
-
-extension ParseMatchWithCaptures: Sendable where Captures: Sendable, Input: Sendable {}
