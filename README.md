@@ -189,9 +189,7 @@ The main tip I could give for writing performant code in Swift is this:
 
 Let the compiler know what you’re up to.
 
-For this project, most of the performance gains were due to playing nicely with the type system and ensuring that the compiler can always figure out the full type of the parsers. This allows the compiler to heavily optimise how the parsers are used and specialised into concrete types. Because of the extensive use of variadic functions and types in this library, I have had to rely on the use of Macros to generate functions and structs of varying arity. If I had not done this, and had instead opted to use `any Parser` fields for the parse combinators, the performance would have tanked. A side-effect of these macro-generated types however is that the parser combinators currently have a limit for how many parsers they can contain. Right now this is 10 children per parser.
-
-> While this limit might increase based on user feedback (it only involves changing a few numbers), I think most people won’t exceed it because—well, if you reach this limit you’ll probably want refactor some parts of your parser into smaller subparsers to keep them more legible. 
+For this project, most of the performance gains were due to playing nicely with the type system and ensuring that the compiler can always figure out the full type of the parsers. This allows the compiler to heavily optimise how the parsers are used and specialised into concrete types. 
 
 Another big contributor to the performance of this parser is the liberal use of `@inlinable` and `@usableFromInline` to enable the compiler to easily inline any functions it wishes to. In addition I used `structs` instead of `classes` so as to make sure that all method calls are executed statically where possible and there is no dynamic dispatch.
 
