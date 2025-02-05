@@ -49,7 +49,7 @@ let commaSeparatedParser = ZeroOrMore {
     }
 } separator: {
     Character(",")
-}.transform { $0.map(\.match) }
+}
 
 let names = try commaSeparatedParser.parse(listOfNames)?.output
 
@@ -78,7 +78,7 @@ let quotedField = Parse {
         Not { Character("\"") }
     }.capture()
     Character("\"")
-}.transform(\.captures)
+}
 ```
 
 And move our old body into an `unquotedField` parser:
@@ -101,7 +101,7 @@ let commaSeparatedParser = ZeroOrMore {
     }.capture()
 } separator: {
     Character(",")
-}.transform { $0.map(\.captures) }
+}
 
 let names = try commaSeparatedParser.parse(listOfNames)?.output
 
@@ -112,6 +112,17 @@ print(names)
 
 Yay! We’re getting the right result. We can keep extending this parser to support escape characters, multiple lines, and whitespaces without too much effort. In fact, I used it to create an RFC 8259 compliant JSON parser in just one day!
 
+As an additional bonus, all default parsers support printing as well. This means that we can do the following to get a new CSV string from the output:
+
+```swift
+let backToCSV = try commaSeparatedParser.print(names!.output)
+
+print(backToCSV as Any)
+// Optional("\"alex\",\"lottie\",\"smith,steven\",\"ainslie\",\"david\"")
+```
+
+> Printing is currently still experimental, but appears to work very well! Try it out yourself, but beware that this feature still requires more testing.
+
 ## Performance
 
 Performance is hugely important when deciding on which parser to use. Lexicon aims to provide a middle ground between parsing speed and development speed. It provide great performance and is easy to develop in. The reason why Lexicon can provide such good performance is because it does not use any type erasure. This enables the compiler to heavily inline and optimise the resulting parsers. 
@@ -121,10 +132,6 @@ Because of these compiler optimisations—and the performant base parsers includ
 I will add performance comparisons later, from preliminary testing you can expect between 2x to  more than 10x better performance than SwiftParsing, depending on parser complexity, with more complex parsers performing a lot better. 
 
 ## Future Plans
-
-### Add Printer Functionality
-
-This should be relatively easy.
 
 ### Adding enhanced parsing information
 
