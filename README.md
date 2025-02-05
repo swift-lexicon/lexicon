@@ -32,7 +32,7 @@ The current platform requirements are:
 platforms: [.macOS(.v10_15), .iOS(.v13), .tvOS(.v13), .watchOS(.v6), .macCatalyst(.v13)],
 ```
 
-There is currently an open issue to consider lowering these by using code generation instead of macros.
+There is currently an open issue to lower these requirements, but this will involve checking what the new requirements should be. 
 
 ## Your first parser
 
