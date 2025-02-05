@@ -53,7 +53,7 @@ let commaSeparatedParser = ZeroOrMore {
 
 let names = try commaSeparatedParser.parse(listOfNames)?.output
 
-print(names)
+print(names as Any)
 // Optional(["alex", "lottie", "steven", "ainslie", "david"])
 ```
 
@@ -105,7 +105,7 @@ let commaSeparatedParser = ZeroOrMore {
 
 let names = try commaSeparatedParser.parse(listOfNames)?.output
 
-print(names)
+print(names as Any)
 // Right result!
 // Optional(["alex", "lottie", "smith,steven", "ainslie", "david"])
 ```
