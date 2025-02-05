@@ -59,7 +59,7 @@ final class LexiconJsonPerformanceTests: XCTestCase {
             }
         }
         
-        print(result)
+        print(result!)
     }
     
     func testPerformanceLexiconPrint() throws {
@@ -72,7 +72,7 @@ final class LexiconJsonPerformanceTests: XCTestCase {
             }
         }
         
-        print(printResult)
+        print(printResult!)
     }
     
     func testPerformanceJSONDecoder() throws {

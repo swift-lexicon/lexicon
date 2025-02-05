@@ -40,7 +40,7 @@ extension Token: Printer {
     public func print(_ output: Input) throws -> Input? {
         guard output.count == 1,
               output[output.startIndex] == token else {
-            throw PrinterError.cannotPrint
+            return nil
         }
         
         return output

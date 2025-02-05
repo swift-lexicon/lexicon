@@ -29,11 +29,11 @@ public protocol Parser<Input, Output>: ParserConvertible where ParserType == Sel
     func parse(_ input: Input) throws -> ParseResult<Output, Input>?
 }
 
-public extension Parser {
+public extension Parser
+where Body: Parser<Input, Output> {
     @inlinable
-    func parse<I>(_ input: I) throws -> ParseResult<Output, Input>?
-    where I: Collection, I.SubSequence == Input {
-        try self.parse(input[...])
+    func parse(_ input: Body.Input) throws -> ParseResult<Body.Output, Body.Input>? {
+        try self.body.parse(input)
     }
 }
 
@@ -49,14 +49,14 @@ extension Parser where Body == Never {
     }
 }
 
-public extension Parser
-where Body: Parser<Input, Output> {
-    @inlinable
-    func parse(_ input: Body.Input) throws -> ParseResult<Body.Output, Body.Input>? {
-        try self.body.parse(input)
-    }
+public extension Parser {
+    @inlinable var asParser: ParserType { get { self } }
 }
 
 public extension Parser {
-    @inlinable var asParser: ParserType { get { self } }
+    @inlinable
+    func parse<I>(_ input: I) throws -> ParseResult<Output, Input>?
+    where I: Collection, I.SubSequence == Input {
+        try self.parse(input[...])
+    }
 }

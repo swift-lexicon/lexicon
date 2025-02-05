@@ -5,10 +5,6 @@
 //  Created by Aaron Vranken on 02/02/2025.
 //
 
-public enum PrinterError: Error {
-    case cannotPrint
-}
-
 public protocol Printer<Input, Output> {
     associatedtype Input
     associatedtype Output
@@ -21,6 +17,7 @@ public protocol VoidPrinter<Input> {
     
     func print() throws -> Input?
 }
+
 
 public protocol InputPrinter<Input> {
     associatedtype Input
