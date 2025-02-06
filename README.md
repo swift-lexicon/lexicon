@@ -123,7 +123,17 @@ Performance is hugely important when deciding on which parser to use. Lexicon ai
 
 Because of these compiler optimisations—and the performant base parsers included in Lexicon—you will almost always get *great* performance using Lexicon parsers. Great, not perfect. A well-thought-out custom handwritten parser will still outperform a Lexicon parser, though at the expense of a lot of development time and mistakes along the way. 
 
-I will add performance comparisons later, from preliminary testing you can expect between 2x to  more than 10x better performance than SwiftParsing, depending on parser complexity, with more complex parsers performing a lot better. 
+```
+name                                time          std        iterations
+-----------------------------------------------------------------------
+Lexicon README CSV (Substring)        2042.000 ns ±  16.90 %     674464
+Lexicon README CSV (UTF8)             1291.000 ns ±  13.82 %    1000000
+SwiftParsing README CSV (Substring)   4333.000 ns ±   9.97 %     321066
+SwiftParsing README CSV (UTF8)        3083.000 ns ±  11.93 %     454295
+SwiftParsec JSON (Substring)        694709.000 ns ±   1.94 %       1987
+Lexicon JSON (Substring)             15875.000 ns ±   6.69 %      86934
+SwiftParsing JSON (UTF8)             52292.000 ns ±   4.30 %      26249
+```
 
 ## Future Plans
 
