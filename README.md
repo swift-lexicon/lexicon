@@ -131,10 +131,6 @@ I will add performance comparisons later, from preliminary testing you can expec
 
 When parsing we might want to know how far we are in the input, for strings this would be the line and column, for arrays the index. This can be done by wrapping parsing input in a special collection and defining the parsing operations as part of this collection. 
 
-### QoL for Recursive Parsers
-
-Currently defining recursive parsers involves some boilerplate code that could probably be refactored away. 
-
 ### Minor Performance Improvements
 
 There is possibly still some finessing possible when it comes to performance. I’m thinking mostly of removing redundant structs in the parser hierarchy where possible so as to remove the depth of the call stack. If anyone has any concrete suggestions, I am more than willing to listen!
