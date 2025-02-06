@@ -12,15 +12,15 @@
 public struct Map<P: Parser, Output, Invert>: Parser {
     @usableFromInline let parser: P
     @usableFromInline let transform: @Sendable (P.Output) throws -> Output
-    @usableFromInline let invert: Invert?
+    @usableFromInline let invert: Invert
     
     @inlinable public init(
         _ parser: P,
         _ transform: @Sendable @escaping ( P.Output) throws -> Output
-    ) where Invert == Never {
+    ) where Invert == Void {
         self.parser = parser
         self.transform = transform
-        self.invert = nil
+        self.invert = ()
     }
     
     @inlinable public init(
@@ -44,7 +44,7 @@ public struct Map<P: Parser, Output, Invert>: Parser {
 public extension ParserConvertible {
     @inlinable func map<T>(
         _ transform: @Sendable @escaping (ParserType.Output) -> T
-    ) -> Map<ParserType, T, Never> {
+    ) -> Map<ParserType, T, Void> {
         Map(self.asParser, transform)
     }
     
@@ -61,11 +61,7 @@ extension Map: ParserPrinter & Printer where
     P: Printer
 {
     @inlinable
-    public func print(_ output: Output) throws -> P.Input? {
-        guard let invert else {
-            fatalError("Map does not have an invert method specified. This code should be unreachable.")
-        }
-        
+    public func print(_ output: Output) throws -> P.Input? {        
         guard let inverted = try invert(output) else {
             return nil
         }
