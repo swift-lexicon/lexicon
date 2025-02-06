@@ -10,17 +10,3 @@ import Foundation
 public protocol EmptyInitializable: Collection {
     static func initEmpty() -> Self
 }
-
-extension Substring: EmptyInitializable {
-    @inlinable
-    public static func initEmpty() -> Substring {
-        return Self()
-    }
-}
-
-extension ArraySlice: EmptyInitializable {
-    @inlinable
-    public static func initEmpty() -> ArraySlice {
-        return Self()
-    }
-}

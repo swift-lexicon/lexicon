@@ -8,21 +8,6 @@
 import Foundation
 import Lexicon
 
-extension Substring.UTF8View: Appendable & EmptyInitializable {
-    @inlinable
-    public static func initEmpty() -> Substring.UTF8View {
-        return Substring().utf8
-    }
-    
-    public mutating func append(_ newElement: String.UTF8View.Element) {
-        self = (Substring(self) + String(newElement)).utf8
-    }
-    
-    public mutating func append<S>(contentsOf newElements: S) where S : Sequence, String.UTF8View.Element == S.Element {
-        self = (Substring(self) + String(decoding: newElements.map { $0 }, as: UTF8.self)).utf8
-    }
-}
-
 // number = [ minus ] int [ frac ] [ exp ]
 @usableFromInline
 struct NumberUtf8: ParserPrinter, Sendable {
@@ -41,7 +26,7 @@ struct NumberUtf8: ParserPrinter, Sendable {
 
 // decimal-point = %x2E       ; .
 @usableFromInline
-internal let decimalPointUtf8 = Token<Substring.UTF8View>(".".utf8.first!)
+internal let decimalPointUtf8 = ".".utf8.first!.asParser
 
 // digit1-9 = %x31-39         ; 1-9
 @usableFromInline
@@ -60,8 +45,8 @@ internal let numberUtf8 = Spot<Substring.UTF8View> {
 // e = %x65 / %x45            ; e E
 @usableFromInline
 internal let eUtf8 = OneOf {
-    Token<Substring.UTF8View>("e".utf8.first!)
-    Token<Substring.UTF8View>("E".utf8.first!)
+    "e".utf8.first!
+    "E".utf8.first!
 }
 
 // exp = e [ minus / plus ] 1*DIGIT
@@ -123,12 +108,12 @@ struct IntegerUtf8: ParserPrinter {
 
 // minus = %x2D               ; -
 @usableFromInline
-internal let minusUtf8 = Token<Substring.UTF8View>("-".utf8.first!)
+internal let minusUtf8 = "-".utf8.first!.asParser
 
 // plus = %x2B                ; +
 @usableFromInline
-internal let plusUtf8 = Token<Substring.UTF8View>("+".utf8.first!)
+internal let plusUtf8 = "+".utf8.first!.asParser
 
 // zero = %x30                ; 0
 @usableFromInline
-internal let zeroUtf8 = Token<Substring.UTF8View>("0".utf8.first!)
+internal let zeroUtf8 = "0".utf8.first!.asParser

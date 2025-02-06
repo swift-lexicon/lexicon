@@ -12,7 +12,7 @@ import Lexicon
 @usableFromInline
 internal let beginArrayUtf8 = Parse {
     whitespaceUtf8
-    Token<String.UTF8View.SubSequence>("[".utf8.first!)
+    "[".utf8.first!
     whitespaceUtf8
 }.defaultPrint("[ ".utf8)
 
@@ -20,7 +20,7 @@ internal let beginArrayUtf8 = Parse {
 @usableFromInline
 internal let endArrayUtf8 = Parse {
     whitespaceUtf8
-    Token<Substring.UTF8View.SubSequence>("]".utf8.first!)
+    "]".utf8.first!
     whitespaceUtf8
 }.defaultPrint("] ".utf8)
 
@@ -28,7 +28,7 @@ internal let endArrayUtf8 = Parse {
 @usableFromInline
 internal let beginObjectUtf8 = Parse {
     whitespaceUtf8
-    Token<Substring.UTF8View.SubSequence>("{".utf8.first!)
+    "{".utf8.first!
     whitespaceUtf8
 }.defaultPrint("{ ".utf8)
 
@@ -36,7 +36,7 @@ internal let beginObjectUtf8 = Parse {
 @usableFromInline
 internal let endObjectUtf8 = Parse {
     whitespaceUtf8
-    Token<Substring.UTF8View.SubSequence>("}".utf8.first!)
+    "}".utf8.first!
     whitespaceUtf8
 }.defaultPrint(" }".utf8)
 
@@ -44,7 +44,7 @@ internal let endObjectUtf8 = Parse {
 @usableFromInline
 internal let nameSeparatorUtf8 = Parse {
     whitespaceUtf8
-    Token<Substring.UTF8View.SubSequence>(":".utf8.first!)
+    ":".utf8.first!
     whitespaceUtf8
 }.defaultPrint(": ".utf8)
 
@@ -52,7 +52,7 @@ internal let nameSeparatorUtf8 = Parse {
 @usableFromInline
 internal let valueSeparatorUtf8 = Parse {
     whitespaceUtf8
-    Token<Substring.UTF8View.SubSequence>(",".utf8.first!)
+    ",".utf8.first!
     whitespaceUtf8
 }.defaultPrint(" )".utf8)
 

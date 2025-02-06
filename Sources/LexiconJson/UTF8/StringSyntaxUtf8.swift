@@ -10,11 +10,11 @@ import Lexicon
 
 // quotation-mark = %x22      ; "
 @usableFromInline
-internal let quotationMarkUtf8 = Token<Substring.UTF8View>("\"".utf8.first!)
+internal let quotationMarkUtf8 = "\"".utf8.first!.asParser
 
 // escape = %x5C              ; \
 @usableFromInline
-internal let escapeUtf8 = Token<Substring.UTF8View>("\\".utf8.first!)
+internal let escapeUtf8 = "\\".utf8.first!.asParser
 
 // unescaped = %x20-21 / %x23-5B / %x5D-10FFFF
 @usableFromInline
@@ -106,7 +106,7 @@ struct EscapedHexRepresentationUtf8: ParserPrinter, Sendable {
     @inlinable
     var body: some ParserPrinter<Substring.UTF8View, Substring.UTF8View> {
         Parse {
-            Token<Substring.UTF8View>("u".utf8.first!)
+            "u".utf8.first!
             hexDigitUtf8.repeating(times: 4)
         }
     }

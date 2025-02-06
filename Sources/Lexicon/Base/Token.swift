@@ -14,7 +14,8 @@ where Input: Collection, Input.Element: Equatable, Input == Input.SubSequence {
     @usableFromInline let token: Input.Element
     
     @inlinable
-    public init(_ token: Input.Element) {
+    public init<T>(_ token: T)
+    where Input.Element == T {
         self.token = token
     }
     

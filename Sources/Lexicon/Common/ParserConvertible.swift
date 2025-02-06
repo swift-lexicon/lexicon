@@ -8,7 +8,6 @@
 public protocol ParserConvertible {
     associatedtype ParserType: Parser
     
-//    func asParser() -> ParserType
     var asParser: ParserType { get }
 }
 
