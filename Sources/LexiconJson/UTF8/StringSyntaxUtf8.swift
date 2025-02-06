@@ -93,7 +93,8 @@ internal func isEscapedCharacterUtf8(_ character: UTF8.CodeUnit) -> Bool {
     return escapedCharacterSetUtf8.contains(character)
 }
 
-public let hexDigitUtf8 = Spot<Substring.UTF8View> {
+@usableFromInline
+internal let hexDigitUtf8 = Spot<Substring.UTF8View> {
     ($0 >= 30 && $0 <= 39) ||
     ($0 >= 65 && $0 <= 70) ||
     ($0 >= 97 && $0 <= 102)

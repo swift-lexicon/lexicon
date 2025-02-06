@@ -44,10 +44,7 @@ public extension OneOfBuilder {
             if let result = try parser1.parse(input) {
                 return result
             }
-            if let result = try parser2.parse(input) {
-                return result
-            }
-            return nil
+            return try parser2.parse(input)
         }
     }
 }
@@ -58,10 +55,7 @@ extension OneOfBuilder.OneOfAccumulator: Printer where P1: Printer, P2: Printer 
         if let result = try parser1.print(output) {
             return result
         }
-        if let result = try parser2.print(output) {
-            return result
-        }
-        return nil
+        return try parser2.print(output)
     }
 }
 

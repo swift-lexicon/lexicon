@@ -28,9 +28,9 @@ public extension DiscardBuilder {
         @inlinable
         public func parse(
             _ input: P1.Input
-        ) throws -> ParseResult<P1.Input, P1.Input>? {
-            if let result = try parser.parse(input) {
-                return ParseResult(input[..<result.remaining.startIndex], result.remaining)
+        ) throws -> ParseResult<Void, P1.Input>? {
+            if let remaining = try parser.parse(input)?.remaining {
+                return ParseResult((), remaining)
             }
             
             return nil
@@ -85,13 +85,13 @@ public extension DiscardBuilder {
         @inlinable
         public func parse(
             _ input: P1.Input
-        ) throws -> ParseResult<P1.Input, P1.Input>? {
-            guard let result1 = try parser1.parse(input),
-                  let result2 = try parser2.parse(result1.remaining) else {
+        ) throws -> ParseResult<Void, P1.Input>? {
+            guard let remaining1 = try parser1.parse(input)?.remaining,
+                  let remaining2 = try parser2.parse(remaining1)?.remaining else {
                 return nil
             }
             
-            return ParseResult(input[..<result2.remaining.startIndex], result2.remaining)
+            return ParseResult((), remaining2)
         }
     }
 }
@@ -110,7 +110,7 @@ where
             var input = printResult.input
             input.append(contentsOf: input2)
             
-            return InputPrintResult(input, printResult.remaining)
+            return InputPrintResult(input, parseResult.remaining)
         }
         
         return nil

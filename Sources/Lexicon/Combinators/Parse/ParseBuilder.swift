@@ -94,9 +94,9 @@ public extension ParseBuilder {
         
         @inlinable
         public func parse(_ input: P1.Input) throws -> ParseResult<Void, P1.Input>? {
-            if let result1 = try parser1.parse(input),
-               let result2 = try parser2.parse(result1.remaining) {
-                return ParseResult((), result2.remaining)
+            if let remaining1 = try parser1.parse(input)?.remaining,
+               let remaining2 = try parser2.parse(remaining1)?.remaining {
+                return ParseResult((), remaining2)
             }
             
             return nil
@@ -135,8 +135,8 @@ public extension ParseBuilder {
         @inlinable
         public func parse(_ input: P1.Input) throws -> ParseResult<P1.Output, P1.Input>? {
             if let result1 = try parser1.parse(input),
-               let result2 = try parser2.parse(result1.remaining) {
-                return ParseResult(result1.output, result2.remaining)
+               let remaining2 = try parser2.parse(result1.remaining)?.remaining {
+                return ParseResult(result1.output, remaining2)
             }
             
             return nil
@@ -174,8 +174,8 @@ public extension ParseBuilder {
         
         @inlinable
         public func parse(_ input: P1.Input) throws -> ParseResult<P2.Output, P1.Input>? {
-            if let result1 = try parser1.parse(input),
-               let result2 = try parser2.parse(result1.remaining) {
+            if let remaining1 = try parser1.parse(input)?.remaining,
+               let result2 = try parser2.parse(remaining1) {
                 return ParseResult(result2.output, result2.remaining)
             }
             
