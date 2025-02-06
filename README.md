@@ -11,7 +11,7 @@ The library does not yet have a production release, but you can play around with
 
 ```swift
 dependencies: [
-    .package(url: "https://github.com/swift-lexicon/lexicon", exact: "0.5.2-prerelease-2025-02-05")
+    .package(url: "https://github.com/swift-lexicon/lexicon", exact: "0.5.3-prerelease-2025-02-06")
 ],
 ```
 
