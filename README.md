@@ -26,13 +26,7 @@ You then specify the target dependency as follows:
 ),
 ```
 
-The current platform requirements are:
-
-```swift
-platforms: [.macOS(.v10_15), .iOS(.v13), .tvOS(.v13), .watchOS(.v6), .macCatalyst(.v13)],
-```
-
-There is currently an open issue to lower these requirements, but this will involve checking what the new requirements should be. 
+There are currently not explicit platform requirements, if you come across any issues for your platform feel free to open up an issue and we will look at it as soon as possible.
 
 ## Your first parser
 
@@ -129,17 +123,25 @@ Performance is hugely important when deciding on which parser to use. Lexicon ai
 
 Because of these compiler optimisations—and the performant base parsers included in Lexicon—you will almost always get *great* performance using Lexicon parsers. Great, not perfect. A well-thought-out custom handwritten parser will still outperform a Lexicon parser, though at the expense of a lot of development time and mistakes along the way. 
 
-I will add performance comparisons later, from preliminary testing you can expect between 2x to  more than 10x better performance than SwiftParsing, depending on parser complexity, with more complex parsers performing a lot better. 
+```
+name                                time          std        iterations
+-----------------------------------------------------------------------
+Lexicon README CSV (Substring)        2041.000 ns ±  18.08 %     670574
+Lexicon README CSV (UTF8)             1250.000 ns ±  17.34 %    1000000
+SwiftParsing README CSV (Substring)   4333.000 ns ±   9.27 %     318829
+SwiftParsing README CSV (UTF8)        3083.000 ns ±  17.23 %     449955
+Regex README CSV (Substring)         12750.000 ns ±  10.68 %     108476
+Lexicon JSON (Substring)             15791.000 ns ±   5.59 %      87252
+Lexicon JSON (UTF8)                  10250.000 ns ±   7.87 %     133500
+SwiftParsing JSON (UTF8)             51625.000 ns ±   4.22 %      26852
+SwiftParsec JSON (Substring)        681792.000 ns ±   2.37 %       2034
+```
 
 ## Future Plans
 
 ### Adding enhanced parsing information
 
 When parsing we might want to know how far we are in the input, for strings this would be the line and column, for arrays the index. This can be done by wrapping parsing input in a special collection and defining the parsing operations as part of this collection. 
-
-### QoL for Recursive Parsers
-
-Currently defining recursive parsers involves some boilerplate code that could probably be refactored away. 
 
 ### Minor Performance Improvements
 
