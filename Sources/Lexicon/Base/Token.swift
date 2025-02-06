@@ -51,16 +51,9 @@ extension Token: VoidPrinter
 where Input: EmptyInitializable & Appendable {
     @inlinable
     public func print() throws -> Input? {
-        var input = Input()
+        var input = Input.initEmpty()
         input.append(token)
         
         return input
-    }
-}
-
-extension Character: ParserConvertible {
-    @inlinable
-    public var asParser: Token<Substring> {
-        Token<Substring>(self)
     }
 }

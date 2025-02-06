@@ -13,10 +13,6 @@ public struct Match<Input>: Parser
 where Input: Collection, Input: Equatable, Input.Element: Equatable, Input == Input.SubSequence {
     @usableFromInline let matcher: Input
     
-    @inlinable public init(_ matcher: Input) {
-        self.matcher = matcher
-    }
-    
     @inlinable public init<I>(_ matcher: I)
     where I: Collection, Input == I.SubSequence {
         self.matcher = matcher[...]
@@ -57,10 +53,3 @@ extension String.UTF8View.SubSequence: @retroactive Equatable {
         lhs.elementsEqual(rhs)
     }
 }
-
-extension String: ParserConvertible {
-    @inlinable public var asParser: Match<Substring> {
-        Match<Substring>(self)
-    }
-}
-

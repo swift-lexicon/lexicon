@@ -62,6 +62,18 @@ final class LexiconJsonPerformanceTests: XCTestCase {
         print(result!)
     }
     
+    func testPerformanceLexiconUtf8() throws {
+        var result: JsonValue?
+        
+        self.measure {
+            for _ in 0...10000 {
+                result = try! jsonParserUtf8.parse(input.utf8)?.output
+            }
+        }
+        
+        print(result!)
+    }
+    
     func testPerformanceLexiconPrint() throws {
         let parseResult = try! jsonParser.parse(input)?.output
         

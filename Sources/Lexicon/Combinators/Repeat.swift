@@ -447,7 +447,7 @@ where P: Printer, P.Input: EmptyInitializable & Appendable {
             return nil
         }
         
-        var input = Input()
+        var input = Input.initEmpty()
         for output in output {
             guard let inputElement = try parser.print(output) else {
                 return nil
@@ -532,7 +532,7 @@ where
             return nil
         }
         
-        var input = Input()
+        var input = Input.initEmpty()
         var i = 0
         while i < outputs.count {
             let output = outputs[i]
@@ -625,7 +625,7 @@ where P: Printer, Until: VoidPrinter, P.Input: Appendable & EmptyInitializable {
             return nil
         }
         
-        var input = Input()
+        var input = Input.initEmpty()
         for output in output {
             guard let inputElement = try parser.print(output) else {
                 return nil

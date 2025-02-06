@@ -35,7 +35,7 @@ extension SkipWhile: Printer
 where P: InputPrinter, P.Input: EmptyInitializable & Appendable {
     @inlinable
     public func print(_ output: P.Input) throws -> P.Input? {
-        var input = Input()
+        var input = Input.initEmpty()
         var remaining = output
         
         while let result = try parser.printWithRemaining(remaining) {

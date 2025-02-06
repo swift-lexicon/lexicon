@@ -31,6 +31,6 @@ extension End: VoidPrinter
 where Input: EmptyInitializable {
     @inlinable
     public func print() throws -> Input? {
-        Input()
+        Input.initEmpty()
     }
 }

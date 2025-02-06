@@ -45,7 +45,7 @@ where P: Printer, P.Input: EmptyInitializable {
     @inlinable
     public func print(_ output: P.Output?) throws -> P.Input? {
         guard let output else {
-            return Input()
+            return Input.initEmpty()
         }
         
         return try parser.print(output)

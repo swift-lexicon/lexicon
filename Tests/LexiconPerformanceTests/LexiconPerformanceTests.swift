@@ -51,12 +51,11 @@ final class LexiconPerformanceTests: XCTestCase {
             SkipWhile { Not { Character(",") } }.capture()
             Character(",")
             bool.capture()
-        }
-        .map {
+        }.map { captures in
             User(
-                id: $0.0,
-                name: String($0.1),
-                isAdmin: $0.2
+                id: captures.0!,
+                name: String(captures.1),
+                isAdmin: captures.2
             )
         }
         
