@@ -42,3 +42,7 @@ extension Spot: Printer {
         return output
     }
 }
+
+public extension Parsers {
+    typealias Spot = Lexicon.Spot
+}

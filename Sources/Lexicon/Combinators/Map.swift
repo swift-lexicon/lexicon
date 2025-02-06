@@ -72,3 +72,7 @@ extension Map: ParserPrinter & Printer where
 
 extension Map: CapturingParser where P: CapturingParser { }
 extension Map: Sendable where P: Sendable, Invert: Sendable {}
+
+public extension Parsers {
+    typealias Map = Lexicon.Map
+}

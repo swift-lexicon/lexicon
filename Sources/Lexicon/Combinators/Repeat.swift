@@ -641,3 +641,7 @@ where P: Printer, Until: VoidPrinter, P.Input: Appendable & EmptyInitializable {
         return input
     }
 }
+
+public extension Parsers {
+    typealias Repeat = Lexicon.Repeat
+}

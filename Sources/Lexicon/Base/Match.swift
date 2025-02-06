@@ -53,3 +53,7 @@ extension String.UTF8View.SubSequence: @retroactive Equatable {
         lhs.elementsEqual(rhs)
     }
 }
+
+public extension Parsers {
+    typealias Match = Lexicon.Match
+}

@@ -1,5 +1,5 @@
 //
-//  EmptyInitialisableCollection.swift
+//  EmptyInitialisable.swift
 //  lexicon
 //
 //  Created by Aaron Vranken on 02/02/2025.

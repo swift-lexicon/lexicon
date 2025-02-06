@@ -60,3 +60,7 @@ extension ParserConvertible where ParserType.Input: Sendable {
         return Throw(self.asParser, throwingClosure())
     }
 }
+
+public extension Parsers {
+    typealias Throw = Lexicon.Throw
+}

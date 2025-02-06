@@ -26,3 +26,7 @@ where P: Printer {
         try parser.print(output)
     }
 }
+
+public extension Parsers {
+    typealias Parse = Lexicon.Parse
+}

@@ -48,3 +48,7 @@ extension Take: Printer {
         return output
     }
 }
+
+public extension Parsers {
+    typealias Take = Lexicon.Take
+}

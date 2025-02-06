@@ -52,3 +52,7 @@ where P: InputPrinter, P.Input: EmptyInitializable & Appendable {
 }
 
 extension SkipWhile: Sendable where P: Sendable {}
+
+public extension Parsers {
+    typealias SkipWhile = Lexicon.SkipWhile
+}

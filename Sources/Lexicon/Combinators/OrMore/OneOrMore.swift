@@ -54,3 +54,7 @@ extension OneOrMore: Printer where RepeatParser: Printer {
         try parser.print(output)
     }
 }
+
+public extension Parsers {
+    typealias OneOrMore = Lexicon.OneOrMore
+}

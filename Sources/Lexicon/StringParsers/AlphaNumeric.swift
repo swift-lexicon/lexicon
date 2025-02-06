@@ -33,7 +33,7 @@ public let number = Spot<Substring>(\.isNumber)
  # Description
  Matches an integer of arbitrary length.
  */
-public let integer = SkipWhile {
+public let integer = Parse {
     nonZeroAsciiNumber
     ZeroOrMore {
         asciiNumber

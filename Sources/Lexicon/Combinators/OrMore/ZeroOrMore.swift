@@ -54,3 +54,7 @@ extension ZeroOrMore: Printer where RepeatParser: Printer {
         try parser.print(output)
     }
 }
+
+public extension Parsers {
+    typealias ZeroOrMore = Lexicon.ZeroOrMore
+}

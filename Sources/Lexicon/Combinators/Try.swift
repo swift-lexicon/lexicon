@@ -57,3 +57,7 @@ public extension ParserConvertible {
         Try(self.asParser)
     }
 }
+
+public extension Parsers {
+    typealias Try = Lexicon.Try
+}

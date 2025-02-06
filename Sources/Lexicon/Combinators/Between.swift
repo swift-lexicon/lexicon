@@ -56,3 +56,7 @@ where Begin: VoidPrinter, End: VoidPrinter, Begin.Input: Appendable {
         return input
     }
 }
+
+public extension Parsers {
+    typealias Between = Lexicon.Between
+}

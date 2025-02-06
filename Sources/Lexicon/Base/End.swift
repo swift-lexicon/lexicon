@@ -34,3 +34,7 @@ where Input: EmptyInitializable {
         Input.initEmpty()
     }
 }
+
+public extension Parsers {
+    typealias End = Lexicon.End
+}

@@ -27,3 +27,7 @@ extension OneOf: ParserPrinter & Printer where P: Printer {
 }
 
 extension OneOf: Sendable where P: Sendable {}
+
+public extension Parsers {
+    typealias OneOf = Lexicon.OneOf
+}

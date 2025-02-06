@@ -46,3 +46,7 @@ public extension ParserConvertible {
         .init(self.asParser, before: before, after: after)
     }
 }
+
+public extension Parsers {
+    typealias Debug = Lexicon.Debug
+}

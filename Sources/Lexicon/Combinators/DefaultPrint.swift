@@ -51,3 +51,7 @@ public extension ParserConvertible {
         )
     }
 }
+
+public extension Parsers {
+    typealias DefaultPrint = Lexicon.DefaultPrint
+}

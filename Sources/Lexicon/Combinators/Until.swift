@@ -46,3 +46,7 @@ where End: VoidPrinter, End.Input: Appendable {
         return input
     }
 }
+
+public extension Parsers {
+    typealias Until = Lexicon.Until
+}

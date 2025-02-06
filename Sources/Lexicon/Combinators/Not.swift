@@ -48,3 +48,7 @@ extension Not: Printer {
         return output[..<output.index(after: output.startIndex)]
     }
 }
+
+public extension Parsers {
+    typealias Not = Lexicon.Not
+}

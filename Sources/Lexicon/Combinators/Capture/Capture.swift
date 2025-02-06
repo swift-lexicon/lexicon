@@ -41,3 +41,7 @@ public extension ParserConvertible {
         return Capture(self.asParser)
     }
 }
+
+public extension Parsers {
+    typealias Capture = Lexicon.Capture
+}

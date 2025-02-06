@@ -58,3 +58,7 @@ where Input: EmptyInitializable & Appendable {
         return input
     }
 }
+
+public extension Parsers {
+    typealias Token = Lexicon.Token
+}
