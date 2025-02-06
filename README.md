@@ -126,13 +126,13 @@ Because of these compiler optimisations—and the performant base parsers includ
 ```
 name                                time          std        iterations
 -----------------------------------------------------------------------
-Lexicon README CSV (Substring)        2042.000 ns ±  16.90 %     674464
-Lexicon README CSV (UTF8)             1291.000 ns ±  13.82 %    1000000
-SwiftParsing README CSV (Substring)   4333.000 ns ±   9.97 %     321066
-SwiftParsing README CSV (UTF8)        3083.000 ns ±  11.93 %     454295
-SwiftParsec JSON (Substring)        694709.000 ns ±   1.94 %       1987
-Lexicon JSON (Substring)             15875.000 ns ±   6.69 %      86934
-SwiftParsing JSON (UTF8)             52292.000 ns ±   4.30 %      26249
+Lexicon README CSV (Substring)        2042.000 ns ±  16.88 %     662194
+Lexicon README CSV (UTF8)             1250.000 ns ±  20.85 %    1000000
+SwiftParsing README CSV (Substring)   4333.000 ns ±   9.02 %     322116
+SwiftParsing README CSV (UTF8)        3083.000 ns ±  10.93 %     452051
+Lexicon JSON (Substring)             16167.000 ns ±   6.82 %      85016
+SwiftParsing JSON (UTF8)             51083.000 ns ±   5.29 %      27340
+SwiftParsec JSON (Substring)        708667.000 ns ±   1.73 %       1955
 ```
 
 ## Future Plans
