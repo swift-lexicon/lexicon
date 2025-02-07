@@ -10,8 +10,14 @@ public struct ZeroOrMore<RepeatParser: Parser>: Parser {
 
     @inlinable
     public init<P: Parser>(@ParseBuilder builder: () -> P)
-    where RepeatParser == Repeat<RepeatParsers.RepeatBasic<P>>{
-        self.parser = Repeat(between: 0..., parser: builder())
+    where RepeatParser == Repeat<
+        P,
+        NeverParser<P.Input, Void>,
+        NeverParser<P.Input, Void>
+    > {
+        self.parser = Repeat(
+            parser: builder()
+        )
     }
 
     @inlinable
@@ -19,9 +25,12 @@ public struct ZeroOrMore<RepeatParser: Parser>: Parser {
         @ParseBuilder builder: () -> P,
         @DiscardBuilder separator: () -> Separator
     )
-    where RepeatParser == Repeat<RepeatParsers.RepeatSeparator<P, Separator>> {
+    where RepeatParser == Repeat<
+        P,
+        Separator,
+        NeverParser<P.Input, Void>
+    > {
         self.parser = Repeat(
-            between: 0...,
             parser: builder(),
             separator: separator()
         )
@@ -32,9 +41,12 @@ public struct ZeroOrMore<RepeatParser: Parser>: Parser {
         @ParseBuilder builder: () -> P,
         @DiscardBuilder until: () -> Until
     )
-    where RepeatParser == Repeat<RepeatParsers.RepeatUntil<P, Until>> {
+    where RepeatParser == Repeat<
+        P,
+        NeverParser<P.Input, Void>,
+        Until
+    > {
         self.parser = Repeat(
-            between: 0...,
             parser: builder(),
             until: until()
         )
