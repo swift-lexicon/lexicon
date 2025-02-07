@@ -11,7 +11,7 @@ The library does not yet have a production release, but you can play around with
 
 ```swift
 dependencies: [
-    .package(url: "https://github.com/swift-lexicon/lexicon", exact: "0.5.2-prerelease-2025-02-05")
+    .package(url: "https://github.com/swift-lexicon/lexicon", exact: "0.5.3-prerelease-2025-02-06")
 ],
 ```
 
@@ -119,22 +119,22 @@ print(backToCSV as Any)
 
 ## Performance
 
-Performance is hugely important when deciding on which parser to use. Lexicon aims to provide a middle ground between parsing speed and development speed. It provide great performance and is easy to develop in. The reason why Lexicon can provide such good performance is because it does not use any type erasure. This enables the compiler to heavily inline and optimise the resulting parsers. 
+Performance is hugely important when deciding which parser to use. Lexicon aims to provide a middle ground between parsing speed and development speed. It provides great performance and is easy to develop in. The reason why Lexicon can provide such good performance is because it does not use any type erasure. This enables the compiler to heavily inline and optimise the resulting parsers. 
 
 Because of these compiler optimisations—and the performant base parsers included in Lexicon—you will almost always get *great* performance using Lexicon parsers. Great, not perfect. A well-thought-out custom handwritten parser will still outperform a Lexicon parser, though at the expense of a lot of development time and mistakes along the way. 
 
 ```
 name                                time          std        iterations
 -----------------------------------------------------------------------
-Lexicon README CSV (Substring)        2041.000 ns ±  18.08 %     670574
-Lexicon README CSV (UTF8)             1250.000 ns ±  17.34 %    1000000
-SwiftParsing README CSV (Substring)   4333.000 ns ±   9.27 %     318829
-SwiftParsing README CSV (UTF8)        3083.000 ns ±  17.23 %     449955
-Regex README CSV (Substring)         12750.000 ns ±  10.68 %     108476
-Lexicon JSON (Substring)             15791.000 ns ±   5.59 %      87252
-Lexicon JSON (UTF8)                  10250.000 ns ±   7.87 %     133500
-SwiftParsing JSON (UTF8)             51625.000 ns ±   4.22 %      26852
-SwiftParsec JSON (Substring)        681792.000 ns ±   2.37 %       2034
+Lexicon README CSV (Substring)        1833.000 ns ±  18.13 %     751290
+Lexicon README CSV (UTF8)             1125.000 ns ±  21.46 %    1000000
+SwiftParsing README CSV (Substring)   4292.000 ns ±   6.73 %     322162
+SwiftParsing README CSV (UTF8)        3000.000 ns ±   8.70 %     463607
+Regex README CSV (Substring)         12750.000 ns ±   4.79 %     109460
+Lexicon JSON (Substring)             15333.000 ns ±   4.59 %      90236
+Lexicon JSON (UTF8)                   9375.000 ns ±  10.16 %     147954
+SwiftParsing JSON (UTF8)             50541.000 ns ±   3.25 %      27566
+SwiftParsec JSON (Substring)        684292.000 ns ±   1.67 %       2018
 ```
 
 ## Future Plans
