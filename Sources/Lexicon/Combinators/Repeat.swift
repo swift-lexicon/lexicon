@@ -5,630 +5,367 @@
 //  Created by Aaron Vranken on 27/01/2025.
 //
 
-// TODO: Find refactor to have 1 parse function and maintain performance.
-public struct Repeat<RepeatParser: Parser>: Parser {
-    @usableFromInline let parser: RepeatParser
+public struct Repeat<P: Parser, Separator: Parser, Until: Parser>: Parser
+where P.Input == Separator.Input, Until.Input == P.Input {
+    @usableFromInline let minCount: Int
+    @usableFromInline let maxCount: Int?
+    @usableFromInline let parser: P
+    @usableFromInline let separator: Separator?
+    @usableFromInline let until: Until?
     
-    @inlinable init<P: Parser>(
-        lowerBound: Int = 0,
-        upperBound: Int?,
+    @inlinable init(
+        min: Int = 0,
+        max: Int? = nil,
         parser: P
     )
-    where RepeatParser == RepeatParsers.RepeatBasic<P>
+    where Separator == NeverParser<P.Input, Void>,
+          Until == NeverParser<P.Input, Void>
     {
-        self.parser = RepeatParsers.RepeatBasic(
-            parser: parser,
-            lowerBound: lowerBound,
-            upperBound: upperBound
-        )
+        self.minCount = min
+        self.maxCount = max
+        self.parser = parser
+        self.separator = nil
+        self.until = nil
     }
     
-    @inlinable init<P: Parser, Separator: Parser>(
-        lowerBound: Int = 0,
-        upperBound: Int?,
+    @inlinable init(
+        min: Int = 0,
+        max: Int? = nil,
         parser: P,
         separator: Separator
     )
-    where RepeatParser == RepeatParsers.RepeatSeparator<P, Separator>
+    where Until == NeverParser<P.Input, Void>
     {
-        self.parser = RepeatParsers.RepeatSeparator(
-            parser: parser,
-            separator: separator,
-            lowerBound: lowerBound,
-            upperBound: upperBound
-        )
+        self.minCount = min
+        self.maxCount = max
+        self.parser = parser
+        self.separator = separator
+        self.until = nil
     }
     
-    @inlinable init<P: Parser, Until: Parser>(
-        lowerBound: Int = 0,
-        upperBound: Int?,
+    @inlinable init(
+        min: Int = 0,
+        max: Int? = nil,
         parser: P,
         until: Until
     )
-    where RepeatParser == RepeatParsers.RepeatUntil<P, Until>
+    where Separator == NeverParser<P.Input, Void>
     {
-        self.parser = RepeatParsers.RepeatUntil(
-            parser: parser,
-            until: until,
-            lowerBound: lowerBound,
-            upperBound: upperBound
-        )
+        self.minCount = min
+        self.maxCount = max
+        self.parser = parser
+        self.separator = nil
+        self.until = until
+    }
+    
+    @inlinable init(
+        min: Int = 0,
+        max: Int? = nil,
+        parser: P,
+        separator: Separator?,
+        until: Until?
+    ) {
+        self.minCount = min
+        self.maxCount = max
+        self.parser = parser
+        self.separator = separator
+        self.until = until
     }
     
     @inlinable
-    public func parse(_ input: RepeatParser.Input) throws -> ParseResult<RepeatParser.Output, RepeatParser.Input>? {
-        try parser.parse(input)
+    public func parse(_ input: P.Input) throws -> ParseResult<[P.Output], P.Input>? {
+        var results: [P.Output] = []
+        var remaining = input
+        var untilReached = until == nil
+        
+        results.reserveCapacity(minCount)
+        
+        while results.count < ( maxCount ?? .max ) {
+            // Stop parsing the moment you reach an until parser
+            if let untilRemaining = try until?.parse(remaining)?.remaining {
+                remaining = untilRemaining
+                untilReached = true
+                break
+            }
+            
+            guard let result = try parser.parse(remaining) else { break }
+            results.append(result.output)
+            remaining = result.remaining
+            
+            // Stop parsing the moment the separator fails
+            if let separator,
+               let separatorRemaining = try separator.parse(remaining)?.remaining {
+                remaining = separatorRemaining
+            } else if separator != nil {
+                break
+            }
+        }
+        
+        if !untilReached {
+            if let untilRemaining = try until?.parse(remaining)?.remaining {
+                remaining = untilRemaining
+                untilReached = true
+            }
+        }
+        
+        guard results.count >= minCount, untilReached else {
+            return nil
+        }
+        
+        return ParseResult(results, remaining)
+    }
+}
+
+extension Repeat: Sendable
+where P: Sendable, Separator: Sendable, Until: Sendable {}
+
+extension Repeat: Printer
+where
+    P: Printer,
+    Separator: VoidPrinter,
+    Until: VoidPrinter,
+    P.Input: EmptyInitializable,
+    P.Input: Appendable
+{
+    @inlinable
+    public func print(
+        _ outputs: [P.Output]
+    ) throws -> P.Input? {
+        guard outputs.count >= minCount,
+              maxCount.map({ outputs.count <= $0}) ?? true else {
+            return nil
+        }
+        
+        var input = Input.initEmpty()
+        
+        // Print all normal inputs with separators with separators in between
+        for (i, output) in outputs.enumerated() {
+            guard let inputElement = try parser.print(output) else {
+                return nil
+            }
+            
+            input.append(contentsOf: inputElement)
+            
+            if let separator,
+                i < outputs.count - 1 {
+                guard let separatorInput = try separator.print() else {
+                    return nil
+                }
+                input.append(contentsOf: separatorInput)
+            }
+        }
+        
+        // If there is an until parser, add another separator and the until input
+        if let until {
+            if let separator {
+                guard let separatorInput = try separator.print() else {
+                    return nil
+                }
+                
+                input.append(contentsOf: separatorInput)
+            }
+            
+            guard let untilInput = try until.print() else {
+                return nil
+            }
+            
+            input.append(contentsOf: untilInput)
+        }
+        
+        return input
     }
 }
 
 public extension Repeat {
-    @inlinable
-    init<P: Parser>(
-        between: ClosedRange<Int>,
-        parser: P
-    ) where RepeatParser == RepeatParsers.RepeatBasic<P> {
-        self.init(
-            lowerBound: between.lowerBound,
-            upperBound: between.upperBound,
-            parser: parser
-        )
-    }
-    
-    @inlinable
-    init<P: Parser, Separator: Parser>(
-        between: ClosedRange<Int>,
-        parser: P,
-        separator: Separator
-    ) where RepeatParser == RepeatParsers.RepeatSeparator<P, Separator> {
-        self.init(
-            lowerBound: between.lowerBound,
-            upperBound: between.upperBound,
-            parser: parser,
-            separator: separator
-        )
-    }
-    
-    @inlinable
-    init<P: Parser, Until: Parser>(
-        between: ClosedRange<Int>,
-        parser: P,
-        until: Until
-    ) where RepeatParser == RepeatParsers.RepeatUntil<P, Until> {
-        self.init(
-            lowerBound: between.lowerBound,
-            upperBound: between.upperBound,
-            parser: parser,
-            until: until
-        )
-    }
-    
-    @inlinable
-    init<P: Parser>(
-        between: ClosedRange<Int>,
+    @inlinable init(
+        min: Int = 0,
+        max: Int? = nil,
         @ParseBuilder _ builder: () -> P
-    ) where RepeatParser == RepeatParsers.RepeatBasic<P> {
-        self.init(between: between, parser: builder())
+    )
+    where Separator == NeverParser<P.Input, Void>,
+          Until == NeverParser<P.Input, Void>
+    {
+        self.minCount = min
+        self.maxCount = max
+        self.parser = builder()
+        self.separator = nil
+        self.until = nil
     }
     
-    @inlinable
-    init<P: Parser, Separator: Parser>(
-        between: ClosedRange<Int>,
+    @inlinable init(
+        min: Int = 0,
+        max: Int? = nil,
         @ParseBuilder _ builder: () -> P,
         @DiscardBuilder separator: () -> Separator
-    ) where RepeatParser == RepeatParsers.RepeatSeparator<P, Separator> {
-        self.init(
-            between: between,
-            parser: builder(),
-            separator: separator()
-        )
+    )
+    where Until == NeverParser<P.Input, Void>
+    {
+        self.minCount = min
+        self.maxCount = max
+        self.parser = builder()
+        self.separator = separator()
+        self.until = nil
     }
     
-    @inlinable
-    init<P: Parser, Until: Parser>(
-        between: ClosedRange<Int>,
+    @inlinable init(
+        min: Int = 0,
+        max: Int? = nil,
         @ParseBuilder _ builder: () -> P,
         @DiscardBuilder until: () -> Until
-    ) where RepeatParser == RepeatParsers.RepeatUntil<P, Until> {
-        self.init(
-            between: between,
-            parser: builder(),
-            until: until()
-        )
+    )
+    where Separator == NeverParser<P.Input, Void>
+    {
+        self.minCount = min
+        self.maxCount = max
+        self.parser = builder()
+        self.separator = nil
+        self.until = until()
+    }
+    
+    @inlinable init(
+        min: Int = 0,
+        max: Int? = nil,
+        @ParseBuilder _ builder: () -> P,
+        @DiscardBuilder separator: () -> Separator,
+        @DiscardBuilder until: () -> Until
+    ) {
+        self.minCount = min
+        self.maxCount = max
+        self.parser = builder()
+        self.separator = separator()
+        self.until = until()
     }
 }
 
 public extension Repeat {
-    @inlinable
-    init<P: Parser>(
-        between: PartialRangeThrough<Int>,
-        parser: P
-    ) where RepeatParser == RepeatParsers.RepeatBasic<P> {
-        self.init(
-            upperBound: between.upperBound,
-            parser: parser
-        )
-    }
-    
-    @inlinable
-    init<P: Parser, Separator: Parser>(
-        between: PartialRangeThrough<Int>,
-        parser: P,
-        separator: Separator
-    ) where RepeatParser == RepeatParsers.RepeatSeparator<P, Separator> {
-        self.init(
-            upperBound: between.upperBound,
-            parser: parser,
-            separator: separator
-        )
-    }
-    
-    @inlinable
-    init<P: Parser, Until: Parser>(
-        between: PartialRangeThrough<Int>,
-        parser: P,
-        until: Until
-    ) where RepeatParser == RepeatParsers.RepeatUntil<P, Until> {
-        self.init(
-            upperBound: between.upperBound,
-            parser: parser,
-            until: until
-        )
-    }
-    
-    @inlinable
-    init<P: Parser>(
-        between: PartialRangeThrough<Int>,
+    @inlinable init(
+        times: Int,
         @ParseBuilder _ builder: () -> P
-    ) where RepeatParser == RepeatParsers.RepeatBasic<P> {
-        self.init(between: between, parser: builder())
+    )
+    where Separator == NeverParser<P.Input, Void>,
+          Until == NeverParser<P.Input, Void>
+    {
+        self.minCount = times
+        self.maxCount = times
+        self.parser = builder()
+        self.separator = nil
+        self.until = nil
     }
     
-    @inlinable
-    init<P: Parser, Separator: Parser>(
-        between: PartialRangeThrough<Int>,
+    @inlinable init(
+        times: Int,
         @ParseBuilder _ builder: () -> P,
         @DiscardBuilder separator: () -> Separator
-    ) where RepeatParser == RepeatParsers.RepeatSeparator<P, Separator> {
-        self.init(
-            between: between,
-            parser: builder(),
-            separator: separator()
-        )
+    )
+    where Until == NeverParser<P.Input, Void>
+    {
+        self.minCount = times
+        self.maxCount = times
+        self.parser = builder()
+        self.separator = separator()
+        self.until = nil
     }
     
-    @inlinable
-    init<P: Parser, Until: Parser>(
-        between: PartialRangeThrough<Int>,
+    @inlinable init(
+        times: Int,
         @ParseBuilder _ builder: () -> P,
         @DiscardBuilder until: () -> Until
-    ) where RepeatParser == RepeatParsers.RepeatUntil<P, Until> {
-        self.init(
-            between: between,
-            parser: builder(),
-            until: until()
-        )
-    }
-}
-
-public extension Repeat {
-    @inlinable
-    init<P: Parser>(
-        between: PartialRangeFrom<Int>,
-        parser: P
-    ) where RepeatParser == RepeatParsers.RepeatBasic<P> {
-        self.init(
-            lowerBound: between.lowerBound,
-            upperBound: nil,
-            parser: parser
-        )
+    )
+    where Separator == NeverParser<P.Input, Void>
+    {
+        self.minCount = times
+        self.maxCount = times
+        self.parser = builder()
+        self.separator = nil
+        self.until = until()
     }
     
-    @inlinable
-    init<P: Parser, Separator: Parser>(
-        between: PartialRangeFrom<Int>,
+    @inlinable init(
+        times: Int,
+        @ParseBuilder _ builder: () -> P,
+        @DiscardBuilder separator: () -> Separator,
+        @DiscardBuilder until: () -> Until
+    ) {
+        self.minCount = times
+        self.maxCount = times
+        self.parser = builder()
+        self.separator = separator()
+        self.until = until()
+    }
+    
+    @inlinable init(
+        times: Int,
+        parser: P
+    )
+    where Separator == NeverParser<P.Input, Void>,
+          Until == NeverParser<P.Input, Void>
+    {
+        self.minCount = times
+        self.maxCount = times
+        self.parser = parser
+        self.separator = nil
+        self.until = nil
+    }
+    
+    @inlinable init(
+        times: Int,
         parser: P,
         separator: Separator
-    ) where RepeatParser == RepeatParsers.RepeatSeparator<P, Separator> {
-        self.init(
-            lowerBound: between.lowerBound,
-            upperBound: nil,
-            parser: parser,
-            separator: separator
-        )
+    )
+    where Until == NeverParser<P.Input, Void>
+    {
+        self.minCount = times
+        self.maxCount = times
+        self.parser = parser
+        self.separator = separator
+        self.until = nil
     }
     
-    @inlinable
-    init<P: Parser, Until: Parser>(
-        between: PartialRangeFrom<Int>,
+    @inlinable init(
+        times: Int,
         parser: P,
         until: Until
-    ) where RepeatParser == RepeatParsers.RepeatUntil<P, Until> {
-        self.init(
-            lowerBound: between.lowerBound,
-            upperBound: nil,
-            parser: parser,
-            until: until
-        )
+    )
+    where Separator == NeverParser<P.Input, Void>
+    {
+        self.minCount = times
+        self.maxCount = times
+        self.parser = parser
+        self.separator = nil
+        self.until = until
     }
     
-    @inlinable
-    init<P: Parser>(
-        between: PartialRangeFrom<Int>,
-        @ParseBuilder _ builder: () -> P
-    ) where RepeatParser == RepeatParsers.RepeatBasic<P> {
-        self.init(between: between, parser: builder())
-    }
-    
-    @inlinable
-    init<P: Parser, Separator: Parser>(
-        between: PartialRangeFrom<Int>,
-        @ParseBuilder _ builder: () -> P,
-        @DiscardBuilder separator: () -> Separator
-    ) where RepeatParser == RepeatParsers.RepeatSeparator<P, Separator> {
-        self.init(
-            between: between,
-            parser: builder(),
-            separator: separator()
-        )
-    }
-    
-    @inlinable
-    init<P: Parser, Until: Parser>(
-        between: PartialRangeFrom<Int>,
-        @ParseBuilder _ builder: () -> P,
-        @DiscardBuilder until: () -> Until
-    ) where RepeatParser == RepeatParsers.RepeatUntil<P, Until> {
-        self.init(
-            between: between,
-            parser: builder(),
-            until: until()
-        )
-    }
-}
-
-public extension Repeat {
-    @inlinable
-    init<P: Parser>(times: Int, parser: P)
-    where RepeatParser == RepeatParsers.RepeatBasic<P> {
-        self.init(
-            between: times...times,
-            parser: parser
-        )
-    }
-    
-    @inlinable
-    init<P: Parser, Separator: Parser>(times: Int, parser: P, separator: Separator)
-    where RepeatParser == RepeatParsers.RepeatSeparator<P, Separator> {
-        self.init(
-            between: times...times,
-            parser: parser,
-            separator: separator
-        )
-    }
-    
-    @inlinable
-    init<P: Parser, Until: Parser>(times: Int, parser: P, until: Until)
-    where RepeatParser == RepeatParsers.RepeatUntil<P, Until> {
-        self.init(
-            between: times...times,
-            parser: parser,
-            until: until
-        )
-    }
-    
-    
-    @inlinable
-    init<P: Parser>(
+    @inlinable init(
         times: Int,
-        @ParseBuilder _ builder: () -> P
-    ) where RepeatParser == RepeatParsers.RepeatBasic<P> {
-        self.init(
-            times: times,
-            parser: builder()
-        )
-    }
-    
-    @inlinable
-    init<P: Parser, Separator: Parser>(
-        times: Int,
-        @ParseBuilder _ builder: () -> P,
-        @DiscardBuilder _ separator: () -> Separator
-    ) where RepeatParser == RepeatParsers.RepeatSeparator<P, Separator> {
-        self.init(
-            times: times,
-            parser: builder(),
-            separator: separator()
-        )
-    }
-    
-    @inlinable
-    init<P: Parser, Until: Parser>(
-        times: Int,
-        @ParseBuilder _ builder: () -> P,
-        @DiscardBuilder _ until: () -> Until
-    ) where RepeatParser == RepeatParsers.RepeatUntil<P, Until> {
-        self.init(
-            times: times,
-            parser: builder(),
-            until: until()
-        )
+        parser: P,
+        separator: Separator,
+        until: Until
+    ) {
+        self.minCount = times
+        self.maxCount = times
+        self.parser = parser
+        self.separator = separator
+        self.until = until
     }
 }
 
 extension ParserConvertible {
     @inlinable
     public func repeating(times: Int) -> Repeat<
-        RepeatParsers.RepeatBasic<ParserType>
+        ParserType,
+        NeverParser<ParserType.Input, Void>,
+        NeverParser<ParserType.Input, Void>
     > {
         return Repeat(times: times, parser: self.asParser)
     }
     
     @inlinable
-    public func repeating(between: ClosedRange<Int>) -> Repeat<
-        RepeatParsers.RepeatBasic<ParserType>
+    public func repeating(min: Int = 0, max: Int? = nil) -> Repeat<
+        ParserType,
+        NeverParser<ParserType.Input, Void>,
+        NeverParser<ParserType.Input, Void>
     > {
-        return Repeat(between: between, parser: self.asParser)
-    }
-    
-    @inlinable
-    public func repeating(between: PartialRangeFrom<Int>) -> Repeat<
-        RepeatParsers.RepeatBasic<ParserType>
-    > {
-        return Repeat(between: between, parser: self.asParser)
-    }
-    
-    @inlinable
-    public func repeating(between: PartialRangeThrough<Int>) -> Repeat<
-        RepeatParsers.RepeatBasic<ParserType>
-    > {
-        return Repeat(between: between, parser: self.asParser)
-    }
-}
-
-extension Repeat: Sendable where RepeatParser: Sendable {}
-
-extension Repeat: Printer where RepeatParser: Printer {
-    public func print(
-        _ output: RepeatParser.Output
-    ) throws -> RepeatParser.Input? {
-        try parser.print(output)
-    }
-}
-
-public enum RepeatParsers {}
-
-public extension RepeatParsers {
-    struct RepeatBasic<P: Parser>: Parser {
-        @usableFromInline let parser: P
-        @usableFromInline let lowerBound: Int
-        @usableFromInline let upperBound: Int?
-        
-        @inlinable init(parser: P, lowerBound: Int = 0, upperBound: Int?) {
-            assert(lowerBound >= 0)
-            
-            self.lowerBound = lowerBound
-            self.upperBound = upperBound
-            self.parser = parser
-        }
-        
-        @inlinable
-        public func parse(
-            _ input: P.Input
-        ) throws -> ParseResult<[P.Output], P.Input>? {
-            var results: [P.Output] = []
-            var remaining = input
-            var count = 0
-
-            results.reserveCapacity(lowerBound)
-            
-            while upperBound.map({ count < $0 }) ?? true,
-                  let result = try parser.parse(remaining) {
-                results.append(result.output)
-                remaining = result.remaining
-                count += 1
-            }
-            
-            guard count >= lowerBound else {
-                return nil
-            }
-
-            return ParseResult(results, remaining)
-        }
-    }
-}
-
-extension RepeatParsers.RepeatBasic: Sendable where P: Sendable {}
-
-extension RepeatParsers.RepeatBasic: Printer
-where P: Printer, P.Input: EmptyInitializable & Appendable {
-    public func print(_ output: [P.Output]) throws -> P.Input? {
-        guard output.count >= lowerBound,
-              upperBound.map({ output.count <= $0}) ?? true else {
-            return nil
-        }
-        
-        var input = Input.initEmpty()
-        for output in output {
-            guard let inputElement = try parser.print(output) else {
-                return nil
-            }
-            
-            input.append(contentsOf: inputElement)
-        }
-        
-        return input
-    }
-}
-
-public extension RepeatParsers {
-    struct RepeatSeparator<P: Parser, Separator: Parser>: Parser
-    where P.Input == Separator.Input {
-        @usableFromInline let parser: P
-        @usableFromInline let separator: Separator
-        @usableFromInline let lowerBound: Int
-        @usableFromInline let upperBound: Int?
-        
-        @inlinable init(
-            parser: P,
-            separator: Separator,
-            lowerBound: Int = 0,
-            upperBound: Int?
-        ) {
-            assert(lowerBound >= 0)
-            
-            self.lowerBound = lowerBound
-            self.upperBound = upperBound
-            self.parser = parser
-            self.separator = separator
-        }
-        
-        @inlinable
-        public func parse(_ input: P.Input) throws -> ParseResult<[P.Output], P.Input>? {
-            var results: [P.Output] = []
-            var remaining = input
-            var count = 0
-            
-            results.reserveCapacity(lowerBound)
-
-            while upperBound.map({ count < $0 }) ?? true,
-                  let result = try parser.parse(remaining) {
-                results.append(result.output)
-                remaining = result.remaining
-                count += 1
-
-                guard let separatorResult = try separator.parse(remaining) else { break }
-                remaining = separatorResult.remaining
-            }
-
-            guard count >= lowerBound else {
-                return nil
-            }
-            
-            return ParseResult(results, remaining)
-        }
-    }
-}
-
-extension RepeatParsers.RepeatSeparator: Sendable
-where P: Sendable, Separator: Sendable {}
-
-extension RepeatParsers.RepeatSeparator: Printer
-where
-    P: Printer,
-    Separator: VoidPrinter,
-    P.Input: EmptyInitializable & Appendable
-{
-    @inlinable
-    public func print(_ outputs: [P.Output]) throws -> P.Input? {
-        guard outputs.count >= lowerBound,
-              upperBound.map({ outputs.count <= $0}) ?? true else {
-            return nil
-        }
-        
-        var input = Input.initEmpty()
-        var i = 0
-        while i < outputs.count {
-            let output = outputs[i]
-            
-            guard let inputElement = try parser.print(output) else {
-                return nil
-            }
-            
-            input.append(contentsOf: inputElement)
-            
-            if i < outputs.count - 1 {
-                guard let separatorInput = try separator.print() else {
-                    return nil
-                }
-                input.append(contentsOf: separatorInput)
-            }
-            
-            i += 1
-        }
-        
-        return input
-    }
-}
-
-public extension RepeatParsers {
-    struct RepeatUntil<P: Parser, Until: Parser>: Parser
-    where P.Input == Until.Input {
-        @usableFromInline let parser: P
-        @usableFromInline let until: Until
-        @usableFromInline let lowerBound: Int
-        @usableFromInline let upperBound: Int?
-        
-        @inlinable init(
-            parser: P,
-            until: Until,
-            lowerBound: Int = 0,
-            upperBound: Int?
-        ) {
-            assert(lowerBound >= 0)
-            
-            self.lowerBound = lowerBound
-            self.upperBound = upperBound
-            self.parser = parser
-            self.until = until
-        }
-        
-        @inlinable
-        public func parse(_ input: P.Input) throws -> ParseResult<[P.Output], P.Input>? {
-            var results: [P.Output] = []
-            var remaining = input
-            var count = 0
-            
-            results.reserveCapacity(lowerBound)
-            
-            while
-                upperBound.map({ count < $0 }) ?? true,
-                let result = try parser.parse(remaining)
-            {
-                if let untilResult = try until.parse(remaining) {
-                    remaining = untilResult.remaining
-                    break
-                }
-                
-                results.append(result.output)
-                remaining = result.remaining
-                count += 1
-            }
-            
-            guard count >= lowerBound else {
-                return nil
-            }
-            
-            return ParseResult(results, remaining)
-        }
-    }
-}
-
-extension RepeatParsers.RepeatUntil: Sendable
-where P: Sendable, Until: Sendable {}
-
-extension RepeatParsers.RepeatUntil: Printer
-where P: Printer, Until: VoidPrinter, P.Input: Appendable & EmptyInitializable {
-    @inlinable
-    public func print(_ output: [P.Output]) throws -> P.Input? {
-        guard output.count >= lowerBound,
-              upperBound.map({ output.count <= $0}) ?? true else {
-            return nil
-        }
-        
-        var input = Input.initEmpty()
-        for output in output {
-            guard let inputElement = try parser.print(output) else {
-                return nil
-            }
-            
-            input.append(contentsOf: inputElement)
-        }
-        guard let untilInput = try until.print() else {
-            return nil
-        }
-        input.append(contentsOf: untilInput)
-        
-        return input
+        return Repeat(min: min, max: max, parser: self.asParser)
     }
 }
 
