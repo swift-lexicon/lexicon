@@ -100,4 +100,17 @@ final class LexiconJsonPerformanceTests: XCTestCase {
         
         print(result as Any)
     }
+    
+    func testPerformanceJSONSerializable() throws {
+        var result: Any?
+        self.measure {
+            for _ in 0...10000 {
+                result = try! JSONSerialization.jsonObject(with:
+                    input.data(using: .utf8)!
+                )
+            }
+        }
+        
+        print(result as Any)
+    }
 }

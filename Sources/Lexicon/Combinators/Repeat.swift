@@ -5,7 +5,7 @@
 //  Created by Aaron Vranken on 27/01/2025.
 //
 
-
+// TODO: Find refactor to have 1 parse function and maintain performance.
 public struct Repeat<RepeatParser: Parser>: Parser {
     @usableFromInline let parser: RepeatParser
     
@@ -417,21 +417,21 @@ public extension RepeatParsers {
         ) throws -> ParseResult<[P.Output], P.Input>? {
             var results: [P.Output] = []
             var remaining = input
+            var count = 0
+
+            results.reserveCapacity(lowerBound)
             
-            var i = 0
-            while
-                upperBound.map({ i < $0 }) ?? true,
-                let result = try parser.parse(remaining)
-            {
+            while upperBound.map({ count < $0 }) ?? true,
+                  let result = try parser.parse(remaining) {
                 results.append(result.output)
                 remaining = result.remaining
-                i += 1
+                count += 1
             }
             
-            guard i >= lowerBound else {
+            guard count >= lowerBound else {
                 return nil
             }
-            
+
             return ParseResult(results, remaining)
         }
     }
@@ -486,28 +486,21 @@ public extension RepeatParsers {
         public func parse(_ input: P.Input) throws -> ParseResult<[P.Output], P.Input>? {
             var results: [P.Output] = []
             var remaining = input
+            var count = 0
             
-            var separatorMatch = true
-            
-            var i = 0
-            while
-                upperBound.map({ i < $0 }) ?? true,
-                separatorMatch,
-                let result = try parser.parse(remaining)
-            {
+            results.reserveCapacity(lowerBound)
+
+            while upperBound.map({ count < $0 }) ?? true,
+                  let result = try parser.parse(remaining) {
                 results.append(result.output)
                 remaining = result.remaining
-                
-                if let separatorResult = try separator.parse(remaining) {
-                    remaining = separatorResult.remaining
-                } else {
-                    separatorMatch = false
-                }
-                    
-                i += 1
+                count += 1
+
+                guard let separatorResult = try separator.parse(remaining) else { break }
+                remaining = separatorResult.remaining
             }
-            
-            guard i >= lowerBound else {
+
+            guard count >= lowerBound else {
                 return nil
             }
             
@@ -583,28 +576,25 @@ public extension RepeatParsers {
         public func parse(_ input: P.Input) throws -> ParseResult<[P.Output], P.Input>? {
             var results: [P.Output] = []
             var remaining = input
+            var count = 0
             
-            var untilResult = try until.parse(remaining)
+            results.reserveCapacity(lowerBound)
             
-            var i = 0
             while
-                upperBound.map({ i < $0 }) ?? true,
-                untilResult == nil,
+                upperBound.map({ count < $0 }) ?? true,
                 let result = try parser.parse(remaining)
             {
+                if let untilResult = try until.parse(remaining) {
+                    remaining = untilResult.remaining
+                    break
+                }
+                
                 results.append(result.output)
                 remaining = result.remaining
-                
-                untilResult = try until.parse(remaining)
-                
-                i += 1
+                count += 1
             }
             
-            if let untilResult {
-                remaining = untilResult.remaining
-            }
-            
-            guard i >= lowerBound else {
+            guard count >= lowerBound else {
                 return nil
             }
             
