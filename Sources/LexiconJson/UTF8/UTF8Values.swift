@@ -149,6 +149,7 @@ public struct JsonParserUtf8: ParserPrinter {
     public var body: some ParserPrinter<Substring.UTF8View, JsonValue> {
         Parse {
             whitespaceUtf8.defaultPrint("".utf8)
+            
             OneOf {
                 JsonArrayUtf8()
                 JsonObjectUtf8()
@@ -160,6 +161,7 @@ public struct JsonParserUtf8: ParserPrinter {
             }
             .throwOnFailure(JsonParserError.notAValidJsonValue)
             .capture()
+            
             whitespaceUtf8.defaultPrint("".utf8)
         }
     }

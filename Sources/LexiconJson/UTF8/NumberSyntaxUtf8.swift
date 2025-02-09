@@ -30,11 +30,8 @@ internal let decimalPointUtf8 = ".".utf8.first!.asParser
 
 // digit1-9 = %x31-39         ; 1-9
 @usableFromInline
-internal let digits1To9SetUtf8 = Set<UTF8.CodeUnit>(0x31...0x39)
-
-@usableFromInline
 internal let digit1To9Utf8 = Spot<Substring.UTF8View> {
-    return digits1To9SetUtf8.contains($0)
+    $0 >= 0x31 && $0 <= 0x39
 }
 
 @usableFromInline

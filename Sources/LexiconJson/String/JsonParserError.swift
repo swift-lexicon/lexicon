@@ -13,5 +13,6 @@ public enum JsonParserError: Error {
          arrayMissingClosingBracket,
          exponentialMissingDigits,
          fractionMissingDigits,
-         notAValidJsonValue
+         notAValidJsonValue,
+         stringMissingClosingQuotationMark
 }

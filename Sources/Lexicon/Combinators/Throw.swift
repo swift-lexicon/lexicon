@@ -5,15 +5,8 @@
 //  Created by Aaron Vranken on 27/01/2025.
 //
 
-public struct ParseError<Input: Sendable>: Error {
-    public let error: Error
-    public let atSlice: Input
-    
-    @inlinable
-    init(error: Error, at atSlice: Input) {
-        self.error = error
-        self.atSlice = atSlice
-    }
+public enum ParseError<FailureError: Sendable, Input: Sendable>: Error {
+    case criticalFailure(error: FailureError, at: Input)
 }
 
 public struct Throw<P: Parser>: Parser where P.Input: Sendable{
@@ -30,7 +23,7 @@ public struct Throw<P: Parser>: Parser where P.Input: Sendable{
     @inlinable
     public func parse(_ input: P.Input) throws -> ParseResult<P.Output, P.Input>? {
         guard let result = try parser.parse(input) else {
-            throw ParseError(error: throwingClosure(), at: input)
+            throw ParseError.criticalFailure(error: throwingClosure(), at: input)
         }
         return result
     }

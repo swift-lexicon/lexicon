@@ -1,6 +1,7 @@
 import Foundation
 import XCTest
 import LexiconJson
+import Lexicon
 
 final class LexiconJsonPerformanceTests: XCTestCase {
     let input = """
@@ -64,6 +65,12 @@ final class LexiconJsonPerformanceTests: XCTestCase {
     
     func testPerformanceLexiconUtf8() throws {
         var result: JsonValue?
+        
+//        do {
+//            let result = try jsonParserUtf8.parse(input.utf8)
+//        } catch ParseError<Error, Substring.UTF8View>.criticalFailure(let error, let at) {
+//            print("Error \(error) at '\(String(decoding: at, as: UTF8.self))'")
+//        }
         
         self.measure {
             for _ in 0...10000 {

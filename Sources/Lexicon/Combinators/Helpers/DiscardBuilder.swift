@@ -61,11 +61,11 @@ extension DiscardBuilder.DiscardBase: Sendable where P1: Sendable {}
 
 public extension DiscardBuilder {
     @inlinable
-    static func buildPartialBlock<P1: ParserConvertible, P2: ParserConvertible>(
+    static func buildPartialBlock<P1: Parser, P2: ParserConvertible>(
         accumulated: P1,
         next: P2
-    ) -> DiscardAccumulator<P1, P2> {
-        DiscardAccumulator(accumulated, next)
+    ) -> DiscardAccumulator<P1, P2.ParserType> {
+        DiscardAccumulator(accumulated, next.asParser)
     }
     
     struct DiscardAccumulator<P1: Parser, P2: Parser>: Parser

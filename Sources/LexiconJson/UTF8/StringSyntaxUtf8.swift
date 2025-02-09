@@ -18,18 +18,11 @@ internal let escapeUtf8 = "\\".utf8.first!.asParser
 
 // unescaped = %x20-21 / %x23-5B / %x5D-10FFFF
 @usableFromInline
-internal let unescapedRangeUtf8 = Set<UTF8.CodeUnit>()
-    .union(0x20...0x21)
-    .union(0x23...0x5B)
-    .union(0x5D...0xFF)
-
-@inlinable
-func isUnescapedUtf8(_ character: UTF8.CodeUnit) -> Bool {
-    return unescapedRangeUtf8.contains(character)
+internal let unescapedUtf8 = Spot<Substring.UTF8View> {
+    ($0 >= 0x20 && $0 <= 0x21) ||
+    ($0 >= 0x23 && $0 <= 0x5B) ||
+    $0 >= 0x5D
 }
-
-@usableFromInline
-internal let unescapedUtf8 = Spot<Substring.UTF8View>(isUnescapedUtf8)
 
 /*
  char = unescaped /
@@ -71,33 +64,16 @@ struct StringSyntaxUtf8: ParserPrinter, Sendable {
             SkipWhile {
                 CharacterSyntaxUtf8()
             }.capture()
-            quotationMarkUtf8
+            quotationMarkUtf8.throwOnFailure(JsonParserError.stringMissingClosingQuotationMark)
         }
     }
 }
 
 @usableFromInline
-internal let escapedCharacterSetUtf8 = Set<UTF8.CodeUnit>([
-    0x22,
-    0x5C,
-    0x2F,
-    0x62,
-    0x66,
-    0x6E,
-    0x72,
-    0x74
-])
-
-@inlinable
-internal func isEscapedCharacterUtf8(_ character: UTF8.CodeUnit) -> Bool {
-    return escapedCharacterSetUtf8.contains(character)
-}
-
-@usableFromInline
 internal let hexDigitUtf8 = Spot<Substring.UTF8View> {
-    ($0 >= 30 && $0 <= 39) ||
-    ($0 >= 65 && $0 <= 70) ||
-    ($0 >= 97 && $0 <= 102)
+    ($0 >= 0x30 && $0 <= 0x39) ||
+    ($0 >= 0x41 && $0 <= 0x5A) ||
+    ($0 >= 0x61 && $0 <= 0x7A)
 }
 
 @usableFromInline
@@ -120,7 +96,16 @@ struct EscapedUtf8: ParserPrinter, Sendable {
     @inlinable
     var body: some ParserPrinter<Substring.UTF8View, Substring.UTF8View> {
         OneOf {
-            Spot<Substring.UTF8View>(isEscapedCharacterUtf8)
+            Spot<Substring.UTF8View> {
+                $0 == 0x22 ||
+                $0 == 0x5C ||
+                $0 == 0x2F ||
+                $0 == 0x62 ||
+                $0 == 0x66 ||
+                $0 == 0x6E ||
+                $0 == 0x72 ||
+                $0 == 0x74
+            }
             EscapedHexRepresentationUtf8()
         }
     }
