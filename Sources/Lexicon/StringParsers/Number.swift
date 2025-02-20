@@ -22,6 +22,10 @@ public let matchNaturalNumber = OneOf {
     matchNonZeroNaturalNumber
 }.map { Int(String($0))! }
 
+public extension StringParsers {
+    static let matchNaturalNumber = Lexicon.matchNaturalNumber
+}
+
 /**
  # Description
  A `Substring` parser that matches negative whole numbers.
@@ -31,6 +35,10 @@ public let matchNegativeNumber = Parse {
     matchNonZeroNaturalNumber
 }.map { Int(String($0))! }
 
+public extension StringParsers {
+    static let matchNegativeNumber = Lexicon.matchNegativeNumber
+}
+
 /**
  # Description
  A `Substring` parser that matches all integer numbers.
@@ -38,4 +46,8 @@ public let matchNegativeNumber = Parse {
 public let matchInteger = OneOf {
     matchNaturalNumber
     matchNegativeNumber
+}
+
+public extension StringParsers {
+    static let matchInteger = Lexicon.matchInteger
 }

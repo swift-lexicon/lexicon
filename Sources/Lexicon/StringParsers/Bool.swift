@@ -13,3 +13,7 @@ public let bool = OneOf {
     Match("true").map { _ in true }
     Match("false").map { _ in false }
 }
+
+public extension StringParsers {
+    static let bool = Lexicon.bool
+}

@@ -11,11 +11,19 @@
  */
 public let endOfLine = Spot<Substring>(\.isNewline)
 
+public extension StringParsers {
+    static let endOfLine = Lexicon.endOfLine
+}
+
 /**
  # Description
  A `Substring` parser that matches an emtpy `Substring`.
  */
 public let endOfFile = End<Substring>()
+
+public extension StringParsers {
+    static let endOfFile = Lexicon.endOfFile
+}
 
 /**
  # Description
@@ -26,4 +34,8 @@ public let line = Until {
         endOfLine
         endOfFile
     }
+}
+
+public extension StringParsers {
+    static let line = Lexicon.line
 }
