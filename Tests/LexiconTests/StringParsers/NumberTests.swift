@@ -7,7 +7,8 @@ final class NumberTests: XCTestCase {
         
         let result = try matchNaturalNumber.parse(input)
         
-        XCTAssertNil(result)
+        XCTAssertEqual(result?.output, 0)
+        XCTAssertEqual(result?.remaining, "1234")
     }
     
     func testMatchNaturalNumberSuccess() throws {
@@ -15,7 +16,7 @@ final class NumberTests: XCTestCase {
         
         let result = try matchNaturalNumber.parse(input)
         
-        XCTAssertEqual(result?.output, "1234")
+        XCTAssertEqual(result?.output, 1234)
         XCTAssertEqual(result?.remaining, "")
     }
     
@@ -32,7 +33,7 @@ final class NumberTests: XCTestCase {
         
         let result = try matchNegativeNumber.parse(input)
         
-        XCTAssertEqual(result?.output, "-1234")
+        XCTAssertEqual(result?.output, -1234)
         XCTAssertEqual(result?.remaining, "")
     }
     
@@ -41,8 +42,25 @@ final class NumberTests: XCTestCase {
         
         let result = try matchInteger.parse(input)
         
-        XCTAssertEqual(result?.output, "1234")
+        XCTAssertEqual(result?.output, 1234)
         XCTAssertEqual(result?.remaining, "")
+    }
+    
+    func testIntegerZeroSucceeds() throws {
+        let input = "0"
+        
+        let result = try matchInteger.parse(input)
+        
+        XCTAssertEqual(result?.output, 0)
+        XCTAssertEqual(result?.remaining, "")
+    }
+    
+    func testIntegerNegativeZeroFails() throws {
+        let input = "-0"
+        
+        let result = try matchInteger.parse(input)
+        
+        XCTAssertNil(result)
     }
     
     func testIntegerSuccessNegative() throws {
@@ -50,7 +68,7 @@ final class NumberTests: XCTestCase {
         
         let result = try matchInteger.parse(input)
         
-        XCTAssertEqual(result?.output, "-1234")
+        XCTAssertEqual(result?.output, -1234)
         XCTAssertEqual(result?.remaining, "")
     }
 }

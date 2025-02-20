@@ -7,7 +7,7 @@
 
 /**
  # Description
- This matches a single token if it fulfills the provided condition.
+ The `Spot` parser matches a single token if the provided predicate is true.
  */
 public struct Spot<Input: Collection>: Parser, Sendable
 where Input == Input.SubSequence {

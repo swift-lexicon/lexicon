@@ -5,6 +5,11 @@
 //  Created by Aaron Vranken on 25/01/2025.
 //
 
+/**
+ # Description
+ The `Until` parser consumes tokens until the wrapped parser succeeds.
+ If the wrapped parser never succeeds, the `Until` parser fails.
+ */
 public struct Until<End: Parser>: Parser
 where End.Input: Collection, End.Input.SubSequence == End.Input {
     public let end: End

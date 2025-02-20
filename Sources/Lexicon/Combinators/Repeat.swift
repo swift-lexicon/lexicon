@@ -5,6 +5,10 @@
 //  Created by Aaron Vranken on 27/01/2025.
 //
 
+/**
+ # Description
+ The `Repeat` parser allows you to specify a certain amount of minimum and maximum matches for a parser.
+ */
 public struct Repeat<P: Parser, Separator: Parser, Until: Parser>: Parser
 where P.Input == Separator.Input, Until.Input == P.Input {
     @usableFromInline let minCount: Int

@@ -7,6 +7,11 @@
 
 import Foundation
 
+/**
+ # Description
+ The `DefaultPrint` parser allows you to define a default printer for a parser when
+ this parser's output value  is not captured.
+ */
 public struct DefaultPrint<P: Parser>: Parser & VoidPrinter {
     @usableFromInline let parser: P
     @usableFromInline let printValue: P.Input

@@ -5,6 +5,11 @@
 //  Created by Aaron Vranken on 24/01/2025.
 //
 
+/**
+ # Description
+ The `Capture` parser is used in a `Parse` body to capture the parse result of one of the subparsers
+ and return it as part of the  result of the parse operation.
+ */
 public struct Capture<P: Parser>: CapturingParser {
     @usableFromInline
     let parser: P

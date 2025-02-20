@@ -9,6 +9,13 @@ public enum ParseError<FailureError: Sendable, Input: Sendable>: Error {
     case criticalFailure(error: FailureError, at: Input)
 }
 
+/**
+ # Description
+ The `Throw` parser allows you to specify that a parser must throw an error on failure. This is useful when you
+ are in a parsing branch that you know is unique and must adhere to a certain format.
+ E.g., when parsing parantheses, an opening paranthesis MUST be followed at some point by a closing paranthesis,
+ a failure to find the closing paranthesis should throw an error.
+ */
 public struct Throw<P: Parser>: Parser where P.Input: Sendable{
     @usableFromInline let parser: P
     @usableFromInline let throwingClosure: @Sendable () -> Error

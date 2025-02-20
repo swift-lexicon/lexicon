@@ -7,8 +7,8 @@
 
 /**
  # Description
- This is an optional parser.
- If the wrapper parser succeeds, this will return the same output value.
+ The `Try` parser makes the wrapper parser optional.
+ If the wrapper parser succeeds, this will return normal output value.
  If the wrapper parser fails, this will return a nil value.
  */
 public struct Try<P: Parser>: Parser {

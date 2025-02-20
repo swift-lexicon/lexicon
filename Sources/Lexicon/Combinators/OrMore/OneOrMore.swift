@@ -5,6 +5,10 @@
 //  Created by Aaron Vranken on 26/01/2025.
 //
 
+/**
+ # Description
+ The `OneOrMore` parser returns one or more matches of the parser body.
+ */
 public struct OneOrMore<RepeatParser: Parser>: Parser {
     @usableFromInline let parser: RepeatParser
 

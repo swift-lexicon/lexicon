@@ -5,6 +5,13 @@
 //  Created by Aaron Vranken on 25/01/2025.
 //
 
+/**
+ # Description
+ The `Between` parser returns the subsequence of all tokens between the begin parse and end parser,
+ excluding the begin parser and end parser results.
+ The begin parser must match with the start of the subsequence input and there must
+ be an end parser match at some point in the subsequence.
+ */
 public struct Between<Begin: Parser, End: Parser>: Parser
 where Begin.Input: Collection, Begin.Input == Begin.Input.SubSequence, Begin.Input == End.Input {
     @usableFromInline

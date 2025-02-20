@@ -5,6 +5,10 @@
 //  Created by Aaron Vranken on 27/01/2025.
 //
 
+/**
+ # Description
+ The `Not` parser matches if the wrapped parser fails and consumes a single token.
+ */
 public struct Not<P: Parser>: Parser
 where P.Input: Collection, P.Input.SubSequence == P.Input {
     @usableFromInline let parser: P

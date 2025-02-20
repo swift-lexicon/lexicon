@@ -7,7 +7,7 @@
 
 /**
  # Description
- This maps the output value of the wrapper parser to the output value of the transform function.
+ The `Map` parser maps the output value of the wrapped parser to the output value of the transform function.
  */
 public struct Map<P: Parser, Output, Invert>: Parser {
     @usableFromInline let parser: P

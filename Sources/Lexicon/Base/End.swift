@@ -5,6 +5,10 @@
 //  Created by Aaron Vranken on 25/01/2025.
 //
 
+/**
+ # Description
+ The `End` parser matches the end of a collection (interpreted as an empty collection).
+ */
 public struct End<Input: Collection>: Parser, Sendable {
     @inlinable public init() {}
     

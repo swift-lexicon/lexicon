@@ -7,6 +7,10 @@
 
 import Foundation
 
+/**
+ # Description
+ The `Take` parser takes a certain number of tokens and returns the consumed tokens.
+ */
 public struct Take<Input>: Parser
 where Input: Collection, Input == Input.SubSequence {
     @usableFromInline let count: Int

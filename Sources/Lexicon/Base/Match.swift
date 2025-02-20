@@ -7,7 +7,7 @@
 
 /**
  # Description
- This matches a sequence in the collection.
+ The `Match` parser matches a subsequence in the collection.
  */
 public struct Match<Input>: Parser
 where Input: Collection, Input: Equatable, Input.Element: Equatable, Input == Input.SubSequence {

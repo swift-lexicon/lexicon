@@ -5,6 +5,10 @@
 //  Created by Aaron Vranken on 26/01/2025.
 //
 
+/**
+ # Description
+ The `OneOf` parser returns the result of the first successful subparser.
+ */
 public struct OneOf<P: Parser>: Parser {
     @usableFromInline let parser: P
 

@@ -5,6 +5,10 @@
 //  Created by Aaron Vranken on 26/01/2025.
 //
 
+/**
+ # Description
+ The `ZeroOrMore` parser returns zero or more matches of the parser body.
+ */
 public struct ZeroOrMore<RepeatParser: Parser>: Parser {
     @usableFromInline let parser: RepeatParser
 

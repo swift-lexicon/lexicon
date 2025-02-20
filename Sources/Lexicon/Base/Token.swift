@@ -7,7 +7,7 @@
 
 /**
  # Description
- This matches a single token.
+ The `Token` parser matches a single token in the collection.
  */
 public struct Token<Input>: Parser
 where Input: Collection, Input.Element: Equatable, Input == Input.SubSequence {
